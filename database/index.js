@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
-mongoose.connect('mongodb://db:27017/overview_db', {
+mongoose.connect('mongodb://localhost/overview_db', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
@@ -80,5 +80,9 @@ const getRecord = (id) => {
   return Overview.find({product_id: id});
 };
 
+
 module.exports.getRecord = getRecord;
-exports.Overview = Overview;
+module.exports.Overview = Overview;
+
+
+
