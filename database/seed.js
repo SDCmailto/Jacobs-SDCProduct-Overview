@@ -88,7 +88,6 @@ const dataGenerator = () => {
   return data;
 }
 
-// const sampleData = dataGenerator();
 
 const save = (sampleData) => {
 
@@ -109,5 +108,9 @@ const save = (sampleData) => {
     })
 }
 
-db.insertMany(sampleData);
+save(sampleData);
+// save(sampleData);
+console.log('db', db);
+
+// db.insertMany(sampleData);
 
