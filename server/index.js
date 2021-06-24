@@ -48,8 +48,7 @@ app.post('/overview', jsonParser ,(req, res) => {
     return db.Overview.create(body);
   })
   .then(record => {
-    res.json(record);
-    res.status(201).send('success');
+    res.status(201).json(record);
   })
   .catch(error => {
     console.log('record', error);
