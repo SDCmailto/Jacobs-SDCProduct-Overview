@@ -1,7 +1,7 @@
 const faker = require('faker');
 const uuid = require('uuid');
 const db = require('./index.js');
-const sampleData = require('./overviews.json');
+// const sampleData = require('./overviews.json');
 
 const sellerGenerator = () => {
   const num = Math.floor(Math.random() * 20);
@@ -108,9 +108,10 @@ const save = (sampleData) => {
     })
 }
 
-save(sampleData);
+let sampleData = dataGenerator();
 // save(sampleData);
+save(sampleData);
 console.log('db', db);
 
-// db.insertMany(sampleData);
+// db.Overview.insertMany(sampleData);
 
