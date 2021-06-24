@@ -109,8 +109,9 @@ const save = (sampleData) => {
 }
 
 let sampleData = dataGenerator();
+// console.log(sampleData);
 // save(sampleData);
-save(sampleData);
+// save(sampleData);
 console.log('db', db);
 
 // db.Overview.insertMany(sampleData);

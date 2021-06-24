@@ -7,6 +7,7 @@ const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.use(shrinkRay());
 
@@ -37,6 +38,24 @@ app.get('/overview/:productid', (req, res) => {
       res.send('An error has occured');
     })
 });
+
+app.post('/overview', jsonParser ,(req, res) => {
+  Promise.resolve(req.body)
+  .then(body => {
+    if (!body) {
+      throw body;
+    }
+    return db.Overview.create(body);
+  })
+  .then(record => {
+    res.json(record);
+    res.status(201).send('success');
+  })
+  .catch(error => {
+    console.log('record', error);
+    res.send('An error has occured');
+  })
+})
 
 const urlAPISeller = '/overview-api/otherseller/:productid';
 const urlAPIPrice = '/overview-api/price/:productid';
