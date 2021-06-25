@@ -78,7 +78,7 @@ app.put('/', jsonParser, (req, res) => {
     if (!body) {
       throw body;
     }
-    // return db.Overview.updateOne(body[0], body[1]);
+    return db.Overview.updateOne(body[0], body[1]);
   })
   .then(record => {
     res.status(200).json('updated' + JSON.stringify(record));
