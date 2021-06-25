@@ -31,11 +31,14 @@ app.get('/overview/:productid', (req, res) => {
       }
       return db.getRecord(id);
     })
-    .then(records => {
-      res.json(records[0]);
+    .then(record => {
+      if (JSON.stringify(record) === "[]") {
+        throw new Error("Error!");
+      }
+      res.json(record[0]);
     })
     .catch(error => {
-      res.send('An error has occured', error);
+      res.status(404).send(error);
     })
 });
 
@@ -55,7 +58,7 @@ app.post('/overview', jsonParser ,(req, res) => {
   })
 })
 
-app.delete('/', jsonParser, (req, res) => {
+app.delete('/overview', jsonParser, (req, res) => {
   Promise.resolve(req.body)
   .then(body => {
     if (!body) {
@@ -71,7 +74,7 @@ app.delete('/', jsonParser, (req, res) => {
   })
 })
 
-app.put('/', jsonParser, (req, res) => {
+app.put('/overview', jsonParser, (req, res) => {
   console.log('req.body', req.body);
   Promise.resolve(req.body)
   .then(body => {
