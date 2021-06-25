@@ -54,7 +54,7 @@ app.post('/overview', jsonParser ,(req, res) => {
     res.status(201).json(record);
   })
   .catch(error => {
-    res.send('An error has occured', error);
+    res.status(404).send(error);
   })
 })
 
@@ -67,15 +67,17 @@ app.delete('/overview', jsonParser, (req, res) => {
     return db.Overview.deleteOne(body);
   })
   .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"ok":1,"deletedCount":0}') {
+      throw new Error("Error");
+    }
     res.status(200).json('deleted' + JSON.stringify(record));
   })
   .catch(error => {
-    res.send('An error has occured', error);
+    res.status(404).send(error);
   })
 })
 
 app.put('/overview', jsonParser, (req, res) => {
-  console.log('req.body', req.body);
   Promise.resolve(req.body)
   .then(body => {
     if (!body) {
@@ -84,10 +86,13 @@ app.put('/overview', jsonParser, (req, res) => {
     return db.Overview.updateOne(body[0], body[1]);
   })
   .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+      throw new Error ("error");
+    }
     res.status(200).json('updated' + JSON.stringify(record));
   })
   .catch(error => {
-    res.send('An error has occured', error);
+    res.status(404).send('An error has occured');
   })
 })
 
@@ -145,6 +150,9 @@ app.get(urlAPIInventory, (req, res, next) => {
 })
 
 const port = process.env.PORT || 3002;
-app.listen(port, () => {
-  console.log(`Listening to port ${port}`);
-})
+// app.listen(port, () => {
+//   console.log(`Listening to port ${port}`);
+// })
+
+const server = app.listen(port, () => console.log(`Listening at port ${port}`));
+module.exports = server;
