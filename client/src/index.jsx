@@ -33,10 +33,11 @@ class Overview extends React.Component {
 
   componentDidMount() {
 
-    const productid = new URL(window.location).pathname.slice(4, );
+    // const productid = new URL(window.location).pathname.slice(4, );
+    const productid = window.location.search.slice(2);
 
     $.ajax({
-      url: `${process.env.OVERVIEW_IP}` + productid,
+      url: `http://localhost:3002/overview/` + productid,
       method: 'GET',
       success: (res) => {
         this.setState({
