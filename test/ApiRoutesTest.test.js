@@ -26,7 +26,7 @@ describe('GET /user', function() {
   });
 });
 
-describe('error for false GET /over', function() {
+describe('error for false GET /overview', function() {
   it('responds with json', function(done) {
     request(app)
       .get('/overview/-1')
