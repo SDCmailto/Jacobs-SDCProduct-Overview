@@ -35,7 +35,7 @@ app.get('/overview/:productid', (req, res) => {
       res.json(records[0]);
     })
     .catch(error => {
-      res.send('An error has occured');
+      res.send('An error has occured', error);
     })
 });
 
@@ -51,8 +51,40 @@ app.post('/overview', jsonParser ,(req, res) => {
     res.status(201).json(record);
   })
   .catch(error => {
-    console.log('record', error);
-    res.send('An error has occured');
+    res.send('An error has occured', error);
+  })
+})
+
+app.delete('/', jsonParser, (req, res) => {
+  Promise.resolve(req.body)
+  .then(body => {
+    if (!body) {
+      throw body;
+    }
+    return db.Overview.deleteOne(body);
+  })
+  .then(record => {
+    res.status(200).json('deleted' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.send('An error has occured', error);
+  })
+})
+
+app.put('/', jsonParser, (req, res) => {
+  console.log('req.body', req.body);
+  Promise.resolve(req.body)
+  .then(body => {
+    if (!body) {
+      throw body;
+    }
+    // return db.Overview.updateOne(body[0], body[1]);
+  })
+  .then(record => {
+    res.status(200).json('updated' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.send('An error has occured', error);
   })
 })
 
