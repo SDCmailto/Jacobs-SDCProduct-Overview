@@ -16,13 +16,11 @@
 
 ## Usage
 
-* API Routes
+* API Routes for http://localhost:3002
 
-* http://localhost:3002
+* GET /overview/:productId
 
-* get /overview/:productId
-
-* post <{{
+* POST <{{
     "price": {
         "list_price": 26,
         "price": 24
@@ -176,9 +174,9 @@
     "product_name": "Gorgeous Frozen Bacon"
 }}> /overview
 
-* Put <[{filter}, {change}]> /overview
+* PUT <[{filter}, {change}]> /overview
 
-* Delete <{filter}> /overview
+* DELETE <{filter}> /overview
 
 > Some usage instructions
 
