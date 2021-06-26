@@ -7,6 +7,7 @@ const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.use(shrinkRay());
 
@@ -30,13 +31,70 @@ app.get('/overview/:productid', (req, res) => {
       }
       return db.getRecord(id);
     })
-    .then(records => {
-      res.json(records[0]);
+    .then(record => {
+      if (JSON.stringify(record) === "[]") {
+        throw new Error("Error!");
+      }
+      res.json(record[0]);
     })
     .catch(error => {
-      res.send('An error has occured');
+      res.status(404).send(error);
     })
 });
+
+app.post('/overview', jsonParser ,(req, res) => {
+  Promise.resolve(req.body)
+  .then(body => {
+    if (!body) {
+      throw body;
+    }
+    return db.Overview.create(body);
+  })
+  .then(record => {
+    res.status(201).json(record);
+  })
+  .catch(error => {
+    res.status(404).send(error);
+  })
+})
+
+app.delete('/overview', jsonParser, (req, res) => {
+  Promise.resolve(req.body)
+  .then(body => {
+    if (!body) {
+      throw body;
+    }
+    return db.Overview.deleteOne(body);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"ok":1,"deletedCount":0}') {
+      throw new Error("Error");
+    }
+    res.status(200).json('deleted' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.status(404).send(error);
+  })
+})
+
+app.put('/overview', jsonParser, (req, res) => {
+  Promise.resolve(req.body)
+  .then(body => {
+    if (!body) {
+      throw body;
+    }
+    return db.Overview.updateOne(body[0], body[1]);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+      throw new Error ("error");
+    }
+    res.status(200).json('updated' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.status(404).send('An error has occured');
+  })
+})
 
 const urlAPISeller = '/overview-api/otherseller/:productid';
 const urlAPIPrice = '/overview-api/price/:productid';
@@ -92,6 +150,9 @@ app.get(urlAPIInventory, (req, res, next) => {
 })
 
 const port = process.env.PORT || 3002;
-app.listen(port, () => {
-  console.log(`Listening to port ${port}`);
-})
+// app.listen(port, () => {
+//   console.log(`Listening to port ${port}`);
+// })
+
+const server = app.listen(port, () => console.log(`Listening at port ${port}`));
+module.exports = server;

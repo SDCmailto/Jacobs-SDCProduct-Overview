@@ -73,7 +73,7 @@ const formGenerator = () => {
 
 const dataGenerator = () => {
   let data = [];
-  [...Array(100).keys()].forEach(idx => {
+  [...Array(1).keys()].forEach(idx => {
     let record = {};
     record['product_id'] = (idx + 1).toString();
     record['product_name'] = faker.commerce.productName();
@@ -109,8 +109,9 @@ const save = (sampleData) => {
 }
 
 let sampleData = dataGenerator();
+console.log(JSON.stringify(sampleData));
 // save(sampleData);
-save(sampleData);
+// save(sampleData);
 console.log('db', db);
 
 // db.Overview.insertMany(sampleData);
