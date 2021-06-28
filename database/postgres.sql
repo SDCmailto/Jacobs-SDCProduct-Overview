@@ -58,7 +58,7 @@ client.query(query, (err, res) => {
 });
 
 query = `
-DROP TABLE IF EXISTS other_sellers;
+DROP TABLE IF EXISTS other_sellers cascade;
 
 CREATE TABLE other_sellers (
   id serial,
@@ -82,7 +82,7 @@ client.query(query, (err, res) => {
 
 });
 
-query = `DROP TABLE IF EXISTS products_and_other_sellers;
+query = `DROP TABLE IF EXISTS products_and_other_sellers cascade;
 
 CREATE TABLE products_and_other_sellers (
   id serial,
@@ -101,16 +101,3 @@ client.query(query, (err, res) => {
 
 });
 
-
-query = `ALTER TABLE forms ADD FOREIGN KEY (id_products) REFERENCES products (id);
-ALTER TABLE products_and_other_sellers ADD FOREIGN KEY (id_products) REFERENCES products (id);
-ALTER TABLE products_and_other_sellers ADD FOREIGN KEY (id_other_sellers) REFERENCES other_sellers (id);`;
-
-client.query(query, (err, res) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    console.log('Foreign Keys successfully created');
-    client.end();
-});
