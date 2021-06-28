@@ -2,13 +2,15 @@ const faker = require('faker');
 const uuid = require('uuid');
 const db = require('./index.js');
 // const sampleData = require('./overviews.json');
+let sellers = [];
+let forms = [];
+let productInfo = [];
+let products_other_sellers_table_data = [];
 
 const sellerGenerator = (idx) => {
   const num = Math.floor(Math.random() * 20);
   const form = ['DVD', 'Blu-ray', '4K', 'Prime Video']
   const edition = ['Special Edition', "Collector's Edition", "Limited Collector's Edition", 'Special Extended Version', 'Limited Edition', null];
-  let sellers = [];
-  let products_other_sellers_table_data = [];
   for (let i = 0; i < num; i++) {
     let record = {};
     record['seller_id'] = uuid.v1();
@@ -22,7 +24,10 @@ const sellerGenerator = (idx) => {
     sellers.push(record);
 
     var products_other_sellers = {'id_products': idx, 'id_other_sellers': record.seller_id};
+
     products_other_sellers_table_data.push(products_other_sellers);
+    sellers.push(record);
+
   }
   // console.log(sellers);
   // console.log(products_other_sellers_table_data);
@@ -67,7 +72,6 @@ const inventoryGenerator = () => {
 
 const formGenerator = (idx) => {
   const form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
-  let result = [];
   if (!idx) {
     return;
   }
@@ -76,15 +80,15 @@ const formGenerator = (idx) => {
     obj.price = Math.floor(Math.random() * 40) + 5;;
     obj.form = form[i];
     obj.id_products = idx;
-    result.push(obj);
+    forms.push(obj);
   }
-  // console.log(result);
-  return result;
+
 }
 
+var t0 = performance.now()
+
 const dataGenerator = () => {
-  let data = [];
-  [...Array(10).keys()].forEach(idx => {
+  [...Array(100000).keys()].forEach(idx => {
     let record = {};
     record['product_id'] = (idx + 1).toString();
     record['product_name'] = faker.commerce.productName();
@@ -96,17 +100,29 @@ const dataGenerator = () => {
     record['ships_from'] = shippingGenerator().ships_from;
     record['in_stock'] = inventoryGenerator().in_stock;
     record['inventory'] = inventoryGenerator().inventory;
-    data.push(record);
+    productInfo.push(record);
     // console.log('record', record);
-    sellers = sellerGenerator(idx + 1);
-    forms = formGenerator(idx + 1);
+    sellerGenerator(idx + 1);
+    formGenerator(idx + 1);
   })
-  // console.log('data', data);
-  return data;
+
+
+
+  jsonSellers = JSON.stringify(sellers);
+  jsonForms = JSON.stringify(forms);
+  jsonProductInfo = JSON.stringify(productInfo);
+  products_other_sellers_table_data = JSON.stringify(products_other_sellers_table_data);
+
+  var t1 = performance.now()
+  console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 }
+let jsonSellers;
+let jsonForms;
+let jsonProductInfo;
+let json_products_other_sellers_table_data
 
 dataGenerator();
-formGenerator();
+
 
 const save = (sampleData) => {
 
