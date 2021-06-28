@@ -3,11 +3,12 @@ const uuid = require('uuid');
 const db = require('./index.js');
 // const sampleData = require('./overviews.json');
 
-const sellerGenerator = () => {
+const sellerGenerator = (idx) => {
   const num = Math.floor(Math.random() * 20);
   const form = ['DVD', 'Blu-ray', '4K', 'Prime Video']
   const edition = ['Special Edition', "Collector's Edition", "Limited Collector's Edition", 'Special Extended Version', 'Limited Edition', null];
   let sellers = [];
+  let products_other_sellers_table_data = [];
   for (let i = 0; i < num; i++) {
     let record = {};
     record['seller_id'] = uuid.v1();
@@ -19,7 +20,12 @@ const sellerGenerator = () => {
     record['form'] = form[Math.floor(Math.random() * form.length)];
     record['release_date'] = faker.date.past();
     sellers.push(record);
+
+    var products_other_sellers = {'id_products': idx, 'id_other_sellers': record.seller_id};
+    products_other_sellers_table_data.push(products_other_sellers);
   }
+  // console.log(sellers);
+  // console.log(products_other_sellers_table_data);
   return sellers;
 };
 
@@ -59,15 +65,20 @@ const inventoryGenerator = () => {
   return record;
 }
 
-const formGenerator = () => {
+const formGenerator = (idx) => {
   const form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
   let result = [];
+  if (!idx) {
+    return;
+  }
   for (let i = 0; i < form.length; i++) {
     let obj = {};
     obj.price = Math.floor(Math.random() * 40) + 5;;
     obj.form = form[i];
+    obj.id_products = idx;
     result.push(obj);
   }
+  // console.log(result);
   return result;
 }
 
@@ -85,16 +96,17 @@ const dataGenerator = () => {
     record['ships_from'] = shippingGenerator().ships_from;
     record['in_stock'] = inventoryGenerator().in_stock;
     record['inventory'] = inventoryGenerator().inventory;
-    // record['other_sellers'] = sellerGenerator();
-    // record['form'] = formGenerator();
     data.push(record);
+    // console.log('record', record);
+    sellers = sellerGenerator(idx + 1);
+    forms = formGenerator(idx + 1);
   })
-  console.log('data', data);
+  // console.log('data', data);
   return data;
 }
 
 dataGenerator();
-
+formGenerator();
 
 const save = (sampleData) => {
 
