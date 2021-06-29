@@ -7,7 +7,7 @@ let forms = [];
 let productInfo = [];
 let products_other_sellers_table_data = [];
 
-const sellerGenerator = (idx) => {
+const sellerGenerator = (numericProductId, uID) => {
   const num = Math.floor(Math.random() * 20);
   const form = ['DVD', 'Blu-ray', '4K', 'Prime Video']
   const edition = ['Special Edition', "Collector's Edition", "Limited Collector's Edition", 'Special Extended Version', 'Limited Edition', null];
@@ -23,7 +23,8 @@ const sellerGenerator = (idx) => {
     record['release_date'] = faker.date.past();
     sellers.push(record);
 
-    var products_other_sellers = {'id_products': idx, 'id_other_sellers': record.seller_id};
+    let joinTableId = uuid.v1();
+    var products_other_sellers = {'id': joinTableId, 'id_products_foreign': uID, 'id_other_sellers_foreign': record.seller_id, 'product_id': numericProductId};
 
     products_other_sellers_table_data.push(products_other_sellers);
     sellers.push(record);
@@ -70,7 +71,7 @@ const inventoryGenerator = () => {
   return record;
 }
 
-const formGenerator = (idx) => {
+const formGenerator = (numericProductId, uID) => {
   const form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
   if (!idx) {
     return;
@@ -79,7 +80,8 @@ const formGenerator = (idx) => {
     let obj = {};
     obj.price = Math.floor(Math.random() * 40) + 5;;
     obj.form = form[i];
-    obj.id_products = idx;
+    obj.id_products_foreign = uID;
+    obj.product_id = numericProductId;
     forms.push(obj);
   }
 
@@ -90,6 +92,7 @@ var t0 = performance.now()
 const dataGenerator = () => {
   [...Array(100).keys()].forEach(idx => {
     let record = {};
+    record['id'] = uuid.v1();
     record['product_id'] = (idx + 1).toString();
     record['product_name'] = faker.commerce.productName();
     record['package_name'] = faker.commerce.productMaterial();
@@ -102,8 +105,8 @@ const dataGenerator = () => {
     record['inventory'] = inventoryGenerator().inventory;
     productInfo.push(record);
     // console.log('record', record);
-    sellerGenerator(idx + 1);
-    formGenerator(idx + 1);
+    sellerGenerator(idx + 1, record.id);
+    formGenerator(idx + 1, record.id);
   })
 
   // jsonSellers = JSON.stringify(sellers);
