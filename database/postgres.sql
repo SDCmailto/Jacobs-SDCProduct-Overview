@@ -12,7 +12,7 @@ client.connect();
 console.log('connected');
 
 let query = `
-DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS products cascade;
 
 CREATE TABLE products (
   id VARCHAR NULL DEFAULT NULL,
@@ -40,14 +40,14 @@ client.query(query, (err, res) => {
 
 
 query = `
-DROP TABLE IF EXISTS forms;
+DROP TABLE IF EXISTS forms cascade;
 
 CREATE TABLE forms (
-  id VARCHAR,
+  id VARCHAR NULL DEFAULT NULL,
   price INTEGER NULL DEFAULT NULL,
   form VARCHAR NULL DEFAULT NULL,
   id_products_foreign VARCHAR NULL DEFAULT NULL,
-  product_id INTEGER NULL DEFAULT NULL
+  product_id INTEGER NULL DEFAULT NULL,
   PRIMARY KEY (id)
 );`;
 

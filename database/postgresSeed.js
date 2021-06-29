@@ -13,7 +13,8 @@ const sellerGenerator = (numericProductId, uID) => {
   const edition = ['Special Edition', "Collector's Edition", "Limited Collector's Edition", 'Special Extended Version', 'Limited Edition', null];
   for (let i = 0; i < num; i++) {
     let record = {};
-    record['seller_id'] = uuid.v1();
+    record['id'] = uuid.v1();
+    record['seller_id'] = uuid.v4();
     record['discs'] = Math.floor(Math.random() * 50);
     record['price']= Math.floor(Math.random() * 40) + 5;
     record['newfrom'] = Math.floor(Math.random() * 35) + 5;
@@ -23,11 +24,10 @@ const sellerGenerator = (numericProductId, uID) => {
     record['release_date'] = faker.date.past();
     sellers.push(record);
 
-    let joinTableId = uuid.v1();
+    let joinTableId = uuid.v4();
     var products_other_sellers = {'id': joinTableId, 'id_products_foreign': uID, 'id_other_sellers_foreign': record.seller_id, 'product_id': numericProductId};
 
     products_other_sellers_table_data.push(products_other_sellers);
-    sellers.push(record);
 
   }
   // console.log(sellers);
@@ -73,11 +73,12 @@ const inventoryGenerator = () => {
 
 const formGenerator = (numericProductId, uID) => {
   const form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
-  if (!idx) {
+  if (!numericProductId) {
     return;
   }
   for (let i = 0; i < form.length; i++) {
     let obj = {};
+    obj.id = uuid.v1();
     obj.price = Math.floor(Math.random() * 40) + 5;;
     obj.form = form[i];
     obj.id_products_foreign = uID;
@@ -114,18 +115,18 @@ const dataGenerator = () => {
   // jsonProductInfo = JSON.stringify(productInfo);
   // products_other_sellers_table_data = JSON.stringify(products_other_sellers_table_data);
 
-  module.exports.jsonSellers = sellers;
-  module.exports.jsonForms = forms;
-  module.exports.jsonProductInfo = productInfo;
+  module.exports.other_sellers = sellers;
+  module.exports.forms = forms;
+  module.exports.products = productInfo;
   module.exports.products_other_sellers_table_data = products_other_sellers_table_data;
-
   var t1 = performance.now()
   console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 }
-let jsonSellers;
-let jsonForms;
-let jsonProductInfo;
-let json_products_other_sellers_table_data
+
+// let other_sellers;
+// let forms;
+// let produts;
+// let json_products_other_sellers_table_data
 
 dataGenerator();
 
