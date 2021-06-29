@@ -88,7 +88,7 @@ const formGenerator = (idx) => {
 var t0 = performance.now()
 
 const dataGenerator = () => {
-  [...Array(100000).keys()].forEach(idx => {
+  [...Array(100).keys()].forEach(idx => {
     let record = {};
     record['product_id'] = (idx + 1).toString();
     record['product_name'] = faker.commerce.productName();
@@ -106,12 +106,15 @@ const dataGenerator = () => {
     formGenerator(idx + 1);
   })
 
+  // jsonSellers = JSON.stringify(sellers);
+  // jsonForms = JSON.stringify(forms);
+  // jsonProductInfo = JSON.stringify(productInfo);
+  // products_other_sellers_table_data = JSON.stringify(products_other_sellers_table_data);
 
-
-  jsonSellers = JSON.stringify(sellers);
-  jsonForms = JSON.stringify(forms);
-  jsonProductInfo = JSON.stringify(productInfo);
-  products_other_sellers_table_data = JSON.stringify(products_other_sellers_table_data);
+  module.exports.jsonSellers = sellers;
+  module.exports.jsonForms = forms;
+  module.exports.jsonProductInfo = productInfo;
+  module.exports.products_other_sellers_table_data = products_other_sellers_table_data;
 
   var t1 = performance.now()
   console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
