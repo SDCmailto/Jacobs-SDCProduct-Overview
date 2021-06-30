@@ -7,7 +7,10 @@
     "build": "webpack --config webpack.config.js",
     "react-dev": "webpack --watch",
     "start": "nodemon server/index.js",
-    "seed": "node database/seed.js",
+    "1": "node database/postgres.sql",
+    "2": "node database/postgresSeed",
+    "3": "node database/arrayToCSV",
+    "4": "node database/postgresInsert",
     "test": "jest --detectOpenHandles"
   },
   "repository": {
