@@ -184,11 +184,10 @@
 
 * First run database/postgres.sql
 
-* Second run database/postgresSeed.js (this will create module.export arrays)
+* Second run database/postgresSeed.js (this will create module.export arrays) will create csv files in the main directory of each of the tables (products, other_sellers, products_other_sellers_table_data, and forms
 
-* Third run database/arrayToCSV.js which will create csv files in the main directory of each of the tables (products, other_sellers, products_other_sellers_table_data, and forms)
 
-* Fourth run postgresInsert to insert the csv file data into postgres database (must go in order of products, sellers, forms, product_and_seller_data) because of foreign key constraints
+* 3 run postgresInsert to insert the csv file data into postgres database (must go in order of products, sellers, forms, product_and_seller_data) because of foreign key constraints
 
 ## Requirements
 

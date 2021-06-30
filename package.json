@@ -9,8 +9,7 @@
     "start": "nodemon server/index.js",
     "1": "node database/postgres.sql",
     "2": "node database/postgresSeed",
-    "3": "node database/arrayToCSV",
-    "4": "node database/postgresInsert",
+    "3": "node database/postgresInsert",
     "test": "jest --detectOpenHandles"
   },
   "repository": {

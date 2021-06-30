@@ -6,22 +6,21 @@ let sellers = [];
 let forms = [];
 let productInfo = [];
 let products_other_sellers_table_data = [];
+let form = ['DVD', 'Blu-ray', '4K', 'Prime Video']
+let edition = ['Special Edition', "Collector's Edition", "Limited Collector's Edition", 'Special Extended Version', 'Limited Edition', null];
 
 const sellerGenerator = (numericProductId, uID) => {
-  const num = ~~(Math.random() * 7);
-  const form = ['DVD', 'Blu-ray', '4K', 'Prime Video']
-  const edition = ['Special Edition', "Collector's Edition", "Limited Collector's Edition", 'Special Extended Version', 'Limited Edition', null];
+  const num = ~~(Math.random() * 8);
   for (let i = 0; i < num; i++) {
     let random = Math.random();
     let record = {};
     record['id'] = uuid.v1();
-    record['seller_id'] = uuid.v4();
     record['discs'] = ~~(random * 50);
     record['price']= ~~(random * 40) + 5;
     record['newfrom'] = ~~(random * 35) + 5;
     record['usedfrom'] = ~~(random * 30) + 3;
-    record['edition'] = edition[~~(random * edition.length)];
-    record['form'] = form[~~(random * form.length)];
+    record['edition'] = edition[~~(random * 6)];
+    record['form'] = form[~~(random * 4)];
     record['release_date'] = faker.date.past();
     sellers.push(record);
 
@@ -31,9 +30,7 @@ const sellerGenerator = (numericProductId, uID) => {
     products_other_sellers_table_data.push(products_other_sellers);
 
   }
-  // console.log(sellers);
-  // console.log(products_other_sellers_table_data);
-  return sellers;
+
 };
 
 // const priceGenerator = () => {
@@ -74,13 +71,13 @@ const sellerGenerator = (numericProductId, uID) => {
 //   }
 //   return record;
 // }
+form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
 
 const formGenerator = (numericProductId, uID) => {
-  const form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
   if (!numericProductId) {
     return;
   }
-  for (let i = 0; i < form.length; i++) {
+  for (let i = 0; i < 4; i++) {
     let obj = {};
     obj.id = uuid.v1();
     obj.price = ~~(Math.random() * 40) + 5;;
@@ -114,22 +111,27 @@ for (let i = 0; i < 50; i++) {
   productMaterials.push(faker.commerce.productMaterial());
 }
 
+let productNameLength = productNames.length;
+let productMaterialsLength = productMaterials.length
+let primeLength = 2;
+let companyLength = company.length;
+
 const dataGenerator = () => {
-  [...Array(10000).keys()].forEach(idx => {
-    console.log(idx);
+  for (let i = 0; i < 10000; i++) {
+    console.log(i);
     let random = Math.random();
     let secondRandom = Math.random();
     let record = {};
     record['id'] = uuid.v1();
-    record['product_id'] = (idx + 1).toString();
-    record['product_name'] = productNames[~~(random * productNames.length)];
-    record['package_name'] = productMaterials[~~(random * productMaterials.length)];
+    record['product_id'] = (i + 1);
+    record['product_name'] = productNames[~~(random * productNameLength)];
+    record['package_name'] = productMaterials[~~(random * productMaterialsLength)];
     record['list_price'] = ~~(random * 40) + 7;
     record['price'] = ~~(random * 38) + 6;
-    record['prime'] = prime[~~(random * prime.length)];
-    record['sold_by'] = company[~~(random * company.length)];
-    record['ships_from'] = company[~~(random * company.length)];
-    record['in_stock'] = prime[~~(secondRandom * prime.length)];
+    record['prime'] = prime[~~(random * primeLength)];
+    record['sold_by'] = company[~~(random * companyLength)];
+    record['ships_from'] = company[~~(random * companyLength)];
+    record['in_stock'] = prime[~~(secondRandom * primeLength)];
     if (record.in_stock === false) {
       record.inventory = 0;
     } else {
@@ -137,9 +139,9 @@ const dataGenerator = () => {
     }
     productInfo.push(record);
     // console.log('record', record);
-    sellerGenerator(idx + 1, record.id);
-    formGenerator(idx + 1, record.id);
-  })
+    sellerGenerator(i + 1, record.id);
+    formGenerator(i + 1, record.id);
+  }
 
   // jsonSellers = JSON.stringify(sellers);
   // jsonForms = JSON.stringify(forms);
@@ -150,7 +152,6 @@ const dataGenerator = () => {
   module.exports.forms = forms;
   module.exports.products = productInfo;
   module.exports.products_other_sellers_table_data = products_other_sellers_table_data;
-  console.log(productInfo);
   var t1 = performance.now()
   console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 }
@@ -163,24 +164,24 @@ const dataGenerator = () => {
 dataGenerator();
 
 
-const save = (sampleData) => {
+// const save = (sampleData) => {
 
-  let recordInsert = sampleData.map(record => ({
-    updateOne: {
-      filter: {product_id: record.product_id},
-      update: {$set: record},
-      upsert: true
-    }
-  }));
+//   let recordInsert = sampleData.map(record => ({
+//     updateOne: {
+//       filter: {product_id: record.product_id},
+//       update: {$set: record},
+//       upsert: true
+//     }
+//   }));
 
-  db.Overview.bulkWrite(recordInsert)
-    .then(() => {
-      console.log('Data has been successfully saved into MongoDB');
-    })
-    .catch((error) => {
-      console.log(error);
-    })
-}
+//   db.Overview.bulkWrite(recordInsert)
+//     .then(() => {
+//       console.log('Data has been successfully saved into MongoDB');
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     })
+// }
 
 // let sampleData = dataGenerator();
 // console.log(JSON.stringify(sampleData));
@@ -193,3 +194,32 @@ const save = (sampleData) => {
 // for (let i = 0; i < 100000; i++) {
 //   console.log(i);
 // }
+
+
+const fastcsv = require('fast-csv');
+const fs = require('fs');
+let ws = fs.createWriteStream("sellers.csv");
+
+
+fastcsv
+  .write(sellers, { headers: true })
+  .pipe(ws);
+
+
+ws = fs.createWriteStream("products.csv");
+fastcsv
+  .write(productInfo, { headers: true })
+  .pipe(ws);
+
+
+ws = fs.createWriteStream("forms.csv");
+fastcsv
+  .write(forms, { headers: true })
+  .pipe(ws);
+
+
+
+ws = fs.createWriteStream("products_other_sellers_table_data.csv");
+fastcsv
+  .write(products_other_sellers_table_data, { headers: true })
+  .pipe(ws);
