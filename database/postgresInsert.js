@@ -12,19 +12,19 @@ const pool = new Pool({
 //do this first because of foreign key constraints
 
 
-// let sellerQuery = `
-// COPY other_sellers(id, seller_id, discs, price, newfrom, usedfrom, edition, form, release_date)
-// FROM '/Users/jametevia/rpt/ProductOverview/sellers.csv'
-// DELIMITER ','
-// CSV HEADER;`;
+let sellerQuery = `
+COPY other_sellers(id, discs, price, newfrom, usedfrom, edition, form, release_date)
+FROM '/Users/jametevia/rpt/ProductOverview/sellers.csv'
+DELIMITER ','
+CSV HEADER;`;
 
 
-// pool.query(
-//   sellerQuery,
-//   (err, res) => {
-//     console.log(err, res);
-//   }
-// );
+pool.query(
+  sellerQuery,
+  (err, res) => {
+    console.log(err, res);
+  }
+);
 
 
 //do this second because of foreign key constraints
@@ -64,18 +64,18 @@ const pool = new Pool({
 
 //do this fourt because of foreign key constraints
 
-let products_other_sellers_table_data_query = `
-COPY products_and_other_sellers(id, id_products_foreign, id_other_sellers_foreign, product_id)
-FROM '/Users/jametevia/rpt/ProductOverview/products_other_sellers_table_data.csv'
-DELIMITER ','
-CSV HEADER;`;
+// let products_other_sellers_table_data_query = `
+// COPY products_and_other_sellers(id, id_products_foreign, id_other_sellers_foreign, product_id)
+// FROM '/Users/jametevia/rpt/ProductOverview/products_other_sellers_table_data.csv'
+// DELIMITER ','
+// CSV HEADER;`;
 
 
-pool.query(
-  products_other_sellers_table_data_query,
-  (err, res) => {
-    console.log(err, res);
-    pool.end();
-  }
-);
+// pool.query(
+//   products_other_sellers_table_data_query,
+//   (err, res) => {
+//     console.log(err, res);
+//     pool.end();
+//   }
+// );
 
