@@ -1,11 +1,8 @@
 const { Client } = require('pg');
+const config = require('../config.js')
 
-const client = new Client({
-    user: 'jametevia',
-    host: 'localhost',
-    database: 'amazon_products',
-    port: 5432,
-});
+const client = new Client(config);
+
 
 client.connect();
 
@@ -15,7 +12,7 @@ let query = `
 DROP TABLE IF EXISTS products cascade;
 
 CREATE TABLE products (
-  id VARCHAR NULL DEFAULT NULL,
+  id VARCHAR NULL DEFAULT NULL UNIQUE,
   list_price INTEGER NULL DEFAULT NULL,
   price INTEGER NULL DEFAULT NULL,
   prime VARCHAR NULL DEFAULT NULL,
@@ -64,7 +61,7 @@ query = `
 DROP TABLE IF EXISTS other_sellers cascade;
 
 CREATE TABLE other_sellers (
-  id VARCHAR NULL DEFAULT NULL,
+  id VARCHAR NULL DEFAULT NULL UNIQUE,
   seller_id VARCHAR NULL DEFAULT NULL,
   discs INTEGER NULL DEFAULT NULL,
   price INTEGER NULL DEFAULT NULL,
