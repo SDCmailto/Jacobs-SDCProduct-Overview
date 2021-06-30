@@ -120,7 +120,7 @@ let primeLength = 2;
 let companyLength = company.length;
 
 const dataGenerator = () => {
-  for (let i = 0; i < 10001; i++) {
+  for (let i = 0; i < 1001; i++) {
     console.log(i);
     let random = Math.random();
     let secondRandom = Math.random() - .2;
@@ -144,25 +144,46 @@ const dataGenerator = () => {
     // console.log('record', record);
     sellerGenerator(i + 1, record.id);
     formGenerator(i + 1, record.id);
+
+
+
+    if (i % 100 === 0) {
+      let ws = fs.createWriteStream("products.csv", { flags: 'a', autoClose: 'false' });
+      fastcsv
+        .write(productInfo, { headers: true })
+        .pipe(ws);
+      // productInfo = [];
+
+      ws = fs.createWriteStream("sellers.csv", { flags: 'a', autoClose: 'false' });
+      fastcsv
+        .write(sellers, { headers: true })
+        .pipe(ws);
+      sellers = [];
+
+      ws = fs.createWriteStream("forms.csv", { flags: 'a', autoClose: 'false' });
+      fastcsv
+        .write(forms, { headers: true })
+        .pipe(ws);
+      forms = [];
+
+
+      ws = fs.createWriteStream("products_other_sellers_table_data.csv", { flags: 'a', autoClose: 'false' });
+      fastcsv
+        .write(products_other_sellers_table_data, { headers: true })
+        .pipe(ws);
+      products_other_sellers_table_data = [];
+
+    }
+
+
+    var t1 = performance.now()
+
+    // console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
   }
 
-  // jsonSellers = JSON.stringify(sellers);
-  // jsonForms = JSON.stringify(forms);
-  // jsonProductInfo = JSON.stringify(productInfo);
-  // products_other_sellers_table_data = JSON.stringify(products_other_sellers_table_data);
-
-  module.exports.other_sellers = sellers;
-  module.exports.forms = forms;
-  module.exports.products = productInfo;
-  module.exports.products_other_sellers_table_data = products_other_sellers_table_data;
-  var t1 = performance.now()
-  console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 }
 
-// let other_sellers;
-// let forms;
-// let produts;
-// let json_products_other_sellers_table_data
+
 
 dataGenerator();
 
@@ -200,26 +221,9 @@ dataGenerator();
 
 //***********Writing to CSV Files  */
 
-let ws = fs.createWriteStream("sellers.csv");
-fastcsv
-  .write(sellers, { headers: true })
-  .pipe(ws);
-
-
-ws = fs.createWriteStream("products.csv");
-fastcsv
-  .write(productInfo, { headers: true })
-  .pipe(ws);
-
-
-ws = fs.createWriteStream("forms.csv");
-fastcsv
-  .write(forms, { headers: true })
-  .pipe(ws);
 
 
 
-ws = fs.createWriteStream("products_other_sellers_table_data.csv");
-fastcsv
-  .write(products_other_sellers_table_data, { headers: true })
-  .pipe(ws);
+
+
+
