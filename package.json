@@ -10,6 +10,7 @@
     "1": "node database/postgres.sql",
     "2": "node database/postgresSeed",
     "3": "node database/postgresInsert",
+    "remove": "rm ./forms.csv ./products_other_sellers_table_data.csv ./products.csv ./sellers.csv",
     "test": "jest --detectOpenHandles"
   },
   "repository": {
