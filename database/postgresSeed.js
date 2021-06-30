@@ -1,6 +1,9 @@
 const faker = require('faker');
 const uuid = require('uuid');
 const db = require('./index.js');
+const fastcsv = require('fast-csv');
+const fs = require('fs');
+
 // const sampleData = require('./overviews.json');
 let sellers = [];
 let forms = [];
@@ -16,7 +19,7 @@ const sellerGenerator = (numericProductId, uID) => {
     let record = {};
     record['id'] = uuid.v1();
     record['discs'] = ~~(random * 50);
-    record['price']= ~~(random * 40) + 5;
+    record['price'] = ~~(random * 40) + 5;
     record['newfrom'] = ~~(random * 35) + 5;
     record['usedfrom'] = ~~(random * 30) + 3;
     record['edition'] = edition[~~(random * 6)];
@@ -25,7 +28,7 @@ const sellerGenerator = (numericProductId, uID) => {
     sellers.push(record);
 
     let joinTableId = uuid.v4();
-    var products_other_sellers = {'id': joinTableId, 'id_products_foreign': uID, 'id_other_sellers_foreign': record.id, 'product_id': numericProductId};
+    var products_other_sellers = { 'id': joinTableId, 'id_products_foreign': uID, 'id_other_sellers_foreign': record.id, 'product_id': numericProductId };
 
     products_other_sellers_table_data.push(products_other_sellers);
 
@@ -117,10 +120,10 @@ let primeLength = 2;
 let companyLength = company.length;
 
 const dataGenerator = () => {
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 10001; i++) {
     console.log(i);
     let random = Math.random();
-    let secondRandom = Math.random();
+    let secondRandom = Math.random() - .2;
     let record = {};
     record['id'] = uuid.v1();
     record['product_id'] = (i + 1);
@@ -195,12 +198,9 @@ dataGenerator();
 //   console.log(i);
 // }
 
+//***********Writing to CSV Files  */
 
-const fastcsv = require('fast-csv');
-const fs = require('fs');
 let ws = fs.createWriteStream("sellers.csv");
-
-
 fastcsv
   .write(sellers, { headers: true })
   .pipe(ws);
