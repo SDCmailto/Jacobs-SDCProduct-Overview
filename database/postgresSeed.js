@@ -3,6 +3,9 @@ const uuid = require('uuid');
 const db = require('./index.js');
 const fastcsv = require('fast-csv');
 const fs = require('fs');
+// const { Parser } = require('json2csv');
+var json2csv = require('json2csv').parse;
+
 
 // const sampleData = require('./overviews.json');
 let sellers = [];
@@ -11,6 +14,8 @@ let productInfo = [];
 let products_other_sellers_table_data = [];
 let form = ['DVD', 'Blu-ray', '4K', 'Prime Video']
 let edition = ['Special Edition', "Collector's Edition", "Limited Collector's Edition", 'Special Extended Version', 'Limited Edition', null];
+
+
 
 const sellerGenerator = (numericProductId, uID) => {
   const num = ~~(Math.random() * 8);
@@ -27,6 +32,7 @@ const sellerGenerator = (numericProductId, uID) => {
     record['release_date'] = faker.date.past();
     sellers.push(record);
 
+
     let joinTableId = uuid.v4();
     var products_other_sellers = { 'id': joinTableId, 'id_products_foreign': uID, 'id_other_sellers_foreign': record.id, 'product_id': numericProductId };
 
@@ -36,45 +42,9 @@ const sellerGenerator = (numericProductId, uID) => {
 
 };
 
-// const priceGenerator = () => {
-//   let record = {};
-//   let random = Math.random();
-//   record['list_price'] = ~~(random * 40) + 7;
-//   record['price'] = record['list_price'] - ~~(random * 10 + 2);
-//   if (record['price'] <= 0) {
-//     record['price'] = record['list_price'];
-//   }
-//   return record;
-// };
-
-// const shippingGenerator = () => {
-//   const prime = [true, false];
-//   let record = {};
-//   let random = Math.random();
-//   const company = ['Amazon.com', faker.company.companyName()];
-//   record['prime'] = prime[~~(random * prime.length)];
-//   record['sold_by'] = company[~~(random * company.length)];
-//   if (record['sold_by'] === 'Amazon.com') {
-//     record['ships_from'] = 'Amazon.com';
-//   } else {
-//     record['ships_from'] = company[~~(random * company.length)];
-//   }
-//   return record;
-// }
-
-// const inventoryGenerator = () => {
-//   const status = [true, false];
-//   let random = Math.random();
-//   let record = {};
-//   record['in_stock'] = status[~~(random * status.length)];
-//   if (record['in_stock']) {
-//     record['inventory'] = ~~(random * 10000 + 1234);
-//   } else {
-//     record['inventory'] = 0;
-//   }
-//   return record;
-// }
 form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
+
+
 
 const formGenerator = (numericProductId, uID) => {
   if (!numericProductId) {
@@ -83,7 +53,7 @@ const formGenerator = (numericProductId, uID) => {
   for (let i = 0; i < 4; i++) {
     let obj = {};
     obj.id = uuid.v1();
-    obj.price = ~~(Math.random() * 40) + 5;;
+    obj.price = ~~(Math.random() * 40) + 5;
     obj.form = form[i];
     obj.id_products_foreign = uID;
     obj.product_id = numericProductId;
@@ -120,7 +90,7 @@ let primeLength = 2;
 let companyLength = company.length;
 
 const dataGenerator = () => {
-  for (let i = 0; i < 1001; i++) {
+  for (let i = 900001; i < 2000000; i++) {
     console.log(i);
     let random = Math.random();
     let secondRandom = Math.random() - .2;
@@ -144,82 +114,169 @@ const dataGenerator = () => {
     // console.log('record', record);
     sellerGenerator(i + 1, record.id);
     formGenerator(i + 1, record.id);
+    //create products csv
 
 
+    let newLine = '\n'
+    if (i === 1) {
+      var productFields = ['id', 'product_id', 'product_name', 'package_name', 'list_price', 'price', 'prime', 'sold_by', 'ships_from', 'in_stock', 'inventory'];
+      var sellerFields = ['id', 'discs', 'price', 'newfrom', 'usedfrom', 'edition', 'form', 'release_date'];
+      var formFields = ['id', 'price', 'form', 'id_products_foreign', 'product_id'];
+      var products_other_sellers_table_data_fields = ['id', 'id_products_foreign', 'id_other_sellers_foreign', 'product_id'];
 
-    if (i % 100 === 0) {
-      let ws = fs.createWriteStream("products.csv", { flags: 'a', autoClose: 'false' });
-      fastcsv
-        .write(productInfo, { headers: true })
-        .pipe(ws);
-      // productInfo = [];
+      productFields = productFields + newLine;
+      sellerFieldsData = sellerFields + newLine;
+      formFieldsData = formFields + newLine;
+      products_other_sellers_table_data_fields_data = products_other_sellers_table_data_fields + newLine;
 
-      ws = fs.createWriteStream("sellers.csv", { flags: 'a', autoClose: 'false' });
-      fastcsv
-        .write(sellers, { headers: true })
-        .pipe(ws);
+      fs.writeFile('products.csv', productFields, function (err) {
+        if (err) throw err;
+        console.log('file saved');
+      });
+
+      fs.writeFile('sellers.csv', sellerFieldsData, function (err) {
+        if (err) throw err;
+      });
+
+      fs.writeFile('forms.csv', formFieldsData, function (err) {
+        if (err) throw err;
+      });
+
+      fs.writeFile('products_other_sellers_table_data.csv', products_other_sellers_table_data_fields_data, function(err) {
+        if (err) throw err;
+      })
+
+    } else if (i !== 0 && i % 100000 === 0) {
+
+      fields = ['id', 'product_id', 'product_name', 'package_name', 'list_price', 'price', 'prime', 'sold_by', 'ships_from', 'in_stock', 'inventory'];
+
+      var appendThis = productInfo;
+      productInfo = [];
+      var toCsv = {
+        fields: fields,
+        header: false,
+      };
+
+      var csv = json2csv(appendThis, toCsv) + newLine;
+      fs.appendFile('products.csv', csv, function (err) {
+        if (err) throw err;
+      });
+
+      //appending sellers to csv
+
+      fields = ['id', 'discs', 'price', 'newfrom', 'usedfrom', 'edition', 'form', 'release_date'];
+
+      var appendThisSeller = sellers;
       sellers = [];
+      var sellerToCsv = {
+        fields: fields,
+        header: false,
+      };
 
-      ws = fs.createWriteStream("forms.csv", { flags: 'a', autoClose: 'false' });
-      fastcsv
-        .write(forms, { headers: true })
-        .pipe(ws);
+      var sellerCsv = json2csv(appendThisSeller, sellerToCsv) + newLine;
+      fs.appendFile('sellers.csv', sellerCsv, function (err) {
+        if (err) throw err;
+      });
+
+      //appending forms csv
+
+      fields = ['id', 'price', 'form', 'id_products_foreign', 'product_id'];
+      var appendThisForm = forms;
       forms = [];
+      var formsToCSV = {
+        fields: fields,
+        header: false,
+      };
+
+      var formToCSV = json2csv(appendThisForm, formsToCSV) + newLine;
+      fs.appendFile('forms.csv', formToCSV, function (err) {
+        if (err) throw err;
+      });
+
+      //join table sellers and products appending
+
+      fields = ['id', 'id_products_foreign', 'id_other_sellers_foreign', 'product_id'];
 
 
-      ws = fs.createWriteStream("products_other_sellers_table_data.csv", { flags: 'a', autoClose: 'false' });
-      fastcsv
-        .write(products_other_sellers_table_data, { headers: true })
-        .pipe(ws);
+      var appendThisJoin = products_other_sellers_table_data;
       products_other_sellers_table_data = [];
+      var productsOtherSellersToCSV = {
+        fields: fields,
+        header: false,
+      };
 
+      var joinToCSV = json2csv(appendThisJoin, productsOtherSellersToCSV) + newLine;
+      fs.appendFile('products_other_sellers_table_data.csv', joinToCSV, function (err) {
+        if (err) throw err;
+      });
     }
 
-
-    var t1 = performance.now()
-
-    // console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
   }
-
+  var t1 = performance.now()
+  console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 }
 
 
+  dataGenerator();
 
-dataGenerator();
 
 
-// const save = (sampleData) => {
+  // const json2csvParser = new Parser();
+  // const productcsv = json2csvParser.parse(productInfo);
 
-//   let recordInsert = sampleData.map(record => ({
-//     updateOne: {
-//       filter: {product_id: record.product_id},
-//       update: {$set: record},
-//       upsert: true
-//     }
-//   }));
+  // productInfo = [];
+  // fs.writeFile('products.csv', productcsv, (err) => {
+  //   if (err) throw new Error('Couldn\'t write the data to a file');
+  //   console.log('The data was appended to file!');
+  // });
+  // //**** */
+  // let ws = fs.createWriteStream("sellers.csv", { flags: 'a', autoClose: 'false', rowDelimiter: '\n'});
+  // fastcsv
+  //   .write(sellers, { headers: true })
+  //   .pipe(ws);
+  // sellers = [];
 
-//   db.Overview.bulkWrite(recordInsert)
-//     .then(() => {
-//       console.log('Data has been successfully saved into MongoDB');
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     })
-// }
+  // ws = fs.createWriteStream("forms.csv", { flags: 'a', autoClose: 'false', rowDelimiter: '\n'});
+  // fastcsv
+  //   .write(forms, { headers: true })
+  //   .pipe(ws);
+  // forms = [];
 
-// let sampleData = dataGenerator();
-// console.log(JSON.stringify(sampleData));
-// save(sampleData);
-// save(sampleData);
-// console.log('db', db);
 
-// db.Overview.insertMany(sampleData);
+  // ws = fs.createWriteStream("products_other_sellers_table_data.csv", { flags: 'a', autoClose: 'false', rowDelimiter: '\n'});
+  // fastcsv
+  //   .write(products_other_sellers_table_data, { headers: true })
+  //   .pipe(ws);
+  // products_other_sellers_table_data = [];
 
-// for (let i = 0; i < 100000; i++) {
-//   console.log(i);
-// }
+  // } else {
+  // const json2csvParser = new Parser( { header: false });
+  // const productcsv = json2csvParser.parse(productInfo);
+  // productInfo = [];
 
-//***********Writing to CSV Files  */
+  // fs.appendFile('products.csv', productcsv, (err) => {
+  //   if (err) throw new Error('Couldn\'t write the data to a file');
+  //   console.log('The data was appended to file!');
+  // });
+
+  // let ws = fs.createWriteStream("sellers.csv", { flags: 'a', autoClose: 'false',  rowDelimiter: '\n'});
+  // fastcsv
+  //   .write(sellers, { writeHeaders: false })
+  //   .pipe(ws);
+  // sellers = [];
+
+  // ws = fs.createWriteStream("forms.csv", { flags: 'a', autoClose: 'false',  rowDelimiter: '\n'});
+  // fastcsv
+  //   .write(forms, { writeHeaders: false })
+  //   .pipe(ws);
+  // forms = [];
+
+
+  // ws = fs.createWriteStream("products_other_sellers_table_data.csv", { flags: 'a', autoClose: 'false', rowDelimiter: '\n'});
+  // fastcsv
+  //   .write(products_other_sellers_table_data, { writeHeaders: false })
+  //   .pipe(ws);
+  // products_other_sellers_table_data = [];
 
 
 
