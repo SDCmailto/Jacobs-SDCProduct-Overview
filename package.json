@@ -7,7 +7,6 @@
     "build": "webpack --config webpack.config.js",
     "react-dev": "webpack --watch",
     "start": "nodemon server/index.js",
-    "createpgdatabase": "node database/postgres.sql",
     "generatepgdata": " node --max-old-space-size=4096 ./database/postgresSeed",
     "seedpgdatabase": "node --max-old-space-size=4096 database/postgresInsert",
     "test": "jest --detectOpenHandles"
