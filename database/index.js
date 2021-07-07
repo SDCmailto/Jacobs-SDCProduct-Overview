@@ -1,88 +1,88 @@
-const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
+// const mongoose = require('mongoose');
+// mongoose.Promise = require('bluebird');
 
-mongoose.connect('mongodb://localhost/overview_db', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true
-});
-
-// mongoose.connect('mongodb://localhost:27017/overview_db', {
+// mongoose.connect('mongodb://localhost/overview_db', {
 //   useNewUrlParser: true,
 //   useUnifiedTopology: true,
 //   useFindAndModify: false,
 //   useCreateIndex: true
 // });
 
-const db = mongoose.connection;
+// // mongoose.connect('mongodb://localhost:27017/overview_db', {
+// //   useNewUrlParser: true,
+// //   useUnifiedTopology: true,
+// //   useFindAndModify: false,
+// //   useCreateIndex: true
+// // });
 
-db.on('error', () => {
-  console.log('An error has occured in connecting with MongoDB.');
-});
+// const db = mongoose.connection;
 
-db.once('open', () => {
-  console.log('Connected with MongoDB successfully.');
-});
+// db.on('error', () => {
+//   console.log('An error has occured in connecting with MongoDB.');
+// });
 
-const sellerSchema = {
-  seller_id: {
-    type: String,
-    unique: true
-  },
-  discs: Number,
-  price: Number,
-  newfrom: Number,
-  usedfrom: Number,
-  edition: String,
-  form: String,
-  release_date: Date
-};
+// db.once('open', () => {
+//   console.log('Connected with MongoDB successfully.');
+// });
 
-const priceSchema = {
-  list_price: Number,
-  price: Number
-};
+// const sellerSchema = {
+//   seller_id: {
+//     type: String,
+//     unique: true
+//   },
+//   discs: Number,
+//   price: Number,
+//   newfrom: Number,
+//   usedfrom: Number,
+//   edition: String,
+//   form: String,
+//   release_date: Date
+// };
 
-const inventorySchema = {
-  in_stock: Boolean,
-  inventory: Number
-};
+// const priceSchema = {
+//   list_price: Number,
+//   price: Number
+// };
 
-const shippingSchema = {
-  prime: Boolean,
-  ships_from: String,
-  sold_by: String
-}
+// const inventorySchema = {
+//   in_stock: Boolean,
+//   inventory: Number
+// };
 
-const formSchema = {
-  form: String,
-  price: Number
-}
+// const shippingSchema = {
+//   prime: Boolean,
+//   ships_from: String,
+//   sold_by: String
+// }
 
-const OverviewSchema = {
-  product_id: {
-    type: String,
-    unique: true
-  },
-  product_name: String,
-  package_name: String,
-  price: priceSchema,
-  other_sellers: [sellerSchema],
-  shipping: shippingSchema,
-  inventory: inventorySchema,
-  form: [formSchema]
-}
+// const formSchema = {
+//   form: String,
+//   price: Number
+// }
 
-const Overview = mongoose.model('Overview', OverviewSchema);
+// const OverviewSchema = {
+//   product_id: {
+//     type: String,
+//     unique: true
+//   },
+//   product_name: String,
+//   package_name: String,
+//   price: priceSchema,
+//   other_sellers: [sellerSchema],
+//   shipping: shippingSchema,
+//   inventory: inventorySchema,
+//   form: [formSchema]
+// }
 
-const getRecord = (id) => {
-  return Overview.find({product_id: id});
-};
+// const Overview = mongoose.model('Overview', OverviewSchema);
+
+// const getRecord = (id) => {
+//   return Overview.find({product_id: id});
+// };
 
 
-module.exports.getRecord = getRecord;
-module.exports.Overview = Overview;
+// module.exports.getRecord = getRecord;
+// module.exports.Overview = Overview;
 
 
 
