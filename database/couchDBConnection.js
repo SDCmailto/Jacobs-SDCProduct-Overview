@@ -1,19 +1,11 @@
-const NodeCouchDb = require('node-couchdb');
+const config = require('../config2.js')
+const cradle = require('cradle');
+cradle.setup(config);
 
-const couch = new NodeCouchDb({
-  host: 'localhost',
-  protocol: 'http',
-  port: 5984,
-  auth: {
-      user: 'admin',
-      pass: 'student123'
-  }
-});
+const couch = new(cradle.Connection)().database('amazon-products');
 
-couch.listDatabases().then((dbs, err) => {
-  if (err) {
-    console.log(err);
-  }
-  console.log(dbs);
-});
+module.exports.couch = couch;
+
+
+
 

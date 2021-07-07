@@ -4,3 +4,6 @@ MyFirstKey.pem
 .dockerignore
 config.js
 *.csv
+config2.js
+amazon_products.sql
+amazon_products2.sql
