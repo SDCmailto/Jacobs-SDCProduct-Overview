@@ -6,6 +6,7 @@ const couch = new(cradle.Connection)().database('amazon-products');
 
 module.exports.couch = couch;
 
+//For pull request ^^
 
 
 
