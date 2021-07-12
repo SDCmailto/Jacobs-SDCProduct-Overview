@@ -2,6 +2,7 @@ curl -X POST -d '{"selector": { "_id": {"$eq": "set11:10000018"}},"execution_sta
 
 //get with index ^^
 //change
+//change for github 
 
 curl 'http://admin:student123@localhost:5984/partitioned-product-overview/_index'
 
