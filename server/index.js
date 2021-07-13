@@ -7,6 +7,7 @@ const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
+
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.use(shrinkRay());
@@ -149,7 +150,7 @@ app.get(urlAPIInventory, (req, res, next) => {
     })
 })
 
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 5984;
 // app.listen(port, () => {
 //   console.log(`Listening to port ${port}`);
 // })
