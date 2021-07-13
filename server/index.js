@@ -25,23 +25,23 @@ app.get('*/dp/:productid', (req, res) => {
 });
 
 app.get('/overview/:productid', (req, res) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
-      }
-      return db.getRecord(id);
-    })
-    .then(record => {
-      if (JSON.stringify(record) === "[]") {
-        throw new Error("Error!");
-      }
-      res.json(record[0]);
-    })
-    .catch(error => {
-      res.status(404).send(error);
-    })
+  return new Promise ((resolve, reject) => {
+    if (!req.params.productid) {
+      throw id;
+    }
+    db.getRecord(req.params.productid, resolve, reject);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === "[]") {
+      throw new Error("Error!");
+    }
+    res.json(record);
+  })
+  .catch(error => {
+    res.status(404).send(error);
+  })
 });
+
 
 app.post('/overview', jsonParser ,(req, res) => {
   Promise.resolve(req.body)
