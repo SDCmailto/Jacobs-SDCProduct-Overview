@@ -34,6 +34,7 @@ CREATE TABLE products (
 
 try {
   const result = await client.query(query);
+  // const result2 = await client.query('describe products;');
   console.log(result);
   client.end();
   return success({ message: `${result.rowCount} item(s) returned`, data: result.rows, status: true });

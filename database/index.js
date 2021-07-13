@@ -74,15 +74,32 @@
 //   form: [formSchema]
 // }
 
-// const Overview = mongoose.model('Overview', OverviewSchema);
+const { Client } = require('pg');
+const config = require ('../config.js');
+const client = new Client(config);
+client.connect();
 
-// const getRecord = (id) => {
-//   return Overview.find({product_id: id});
-// };
+const Overview = undefined;
 
 
-// module.exports.getRecord = getRecord;
-// module.exports.Overview = Overview;
+
+const getRecord = async (id) => {
+  let products = await client.query(`select * from (select * from products where product_id = ${id}) as p left join (select * from forms where product_id = ${id}) as f on p.product_id = f.product_id;`, (err, results) => {
+    if (err) {console.log(err + ' products');}
+    console.log('products', results.rows);
+  });
+
+  let sellers = await client.query(`select * from other_sellers where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = ${id});`, (err, result) => {
+    if (err) {console.log(err + 'sellers'); }
+    console.log('sellers', result.rows);
+  });
+
+
+};
+
+
+module.exports.getRecord = getRecord;
+module.exports.Overview = Overview;
 
 
 
