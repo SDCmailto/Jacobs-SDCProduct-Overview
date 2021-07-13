@@ -83,18 +83,22 @@ const Overview = undefined;
 
 
 
-const getRecord = async (id) => {
-  let products = await client.query(`select * from (select * from products where product_id = ${id}) as p left join (select * from forms where product_id = ${id}) as f on p.product_id = f.product_id;`, (err, results) => {
+const getRecord = async (id, resolve, reject) => {
+  await client.query(`select * from products where product_id = ${id}`, async (err, results) => {
     if (err) {console.log(err + ' products');}
-    console.log('products', results.rows);
+    products = results.rows[0];
+    let sellers = await client.query(`select * from other_sellers where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = ${id});`, async (err, results) => {
+      if (err) {console.log(err + 'sellers'); }
+      // console.log('sellers', results.rows);
+      products['sellers'] = results.rows;
+      let forms = await client.query(`select * from forms where product_id = ${id};`, (err, results) => {
+        if (err) {console.log(err, 'forms'); }
+        // console.log('forms', results.rows);
+        products['forms'] = results.rows;
+        resolve(products);
+      });
+    });
   });
-
-  let sellers = await client.query(`select * from other_sellers where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = ${id});`, (err, result) => {
-    if (err) {console.log(err + 'sellers'); }
-    console.log('sellers', result.rows);
-  });
-
-
 };
 
 
