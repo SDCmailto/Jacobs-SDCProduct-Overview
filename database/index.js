@@ -76,6 +76,19 @@ const deleteRecord = (id, resolve, reject) => {
   })
 }
 
+const updateRecordProducts = (id, filter, resolve, reject) => {
+
+}
+
+const updateRecordForms = (id, filter, resolve, reject) => {
+
+}
+
+const updateRecordSellers = (id, filter, resolve, reject) => {
+  
+}
+
+module.exports.updateRecord = updateRecord;
 module.exports.deleteRecord = deleteRecord;
 module.exports.getRecord = getRecord;
 module.exports.createRecord = createRecord;

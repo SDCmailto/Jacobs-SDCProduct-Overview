@@ -75,13 +75,51 @@ app.delete('/overview/:productid', jsonParser, (req, res) => {
   })
 })
 
-app.put('/overview', jsonParser, (req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
+app.put('/overview/:productid/products', jsonParser, (req, res) => {
+  let filter = req.body;
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
     }
-    return db.Overview.updateOne(body[0], body[1]);
+    db.updateRecordProducts(req.params.productid, filter, resolve, reject);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+      throw new Error ("error");
+    }
+    res.status(200).json('updated' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.status(404).send('An error has occured');
+  })
+})
+
+app.put('/overview/:productid/sellers', jsonParser, (req, res) => {
+  let filter = req.body;
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
+    }
+    db.updateRecordSellers(req.params.productid, filter, resolve, reject);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+      throw new Error ("error");
+    }
+    res.status(200).json('updated' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.status(404).send('An error has occured');
+  })
+})
+
+app.put('/overview/:productid/forms', jsonParser, (req, res) => {
+  let filter = req.body;
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
+    }
+    db.updateRecordForms(req.params.productid, filter, resolve, reject);
   })
   .then(record => {
     if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {

@@ -18,7 +18,7 @@
 
 * API Routes for http://localhost:3002
 
-* GET /overview/:productId
+* GET /overview/productID
 
 * POST <{{
     "price": {
@@ -174,9 +174,11 @@
     "product_name": "Gorgeous Frozen Bacon"
 }}> /overview
 
-* PUT <[{filter}, {change}]> /overview
+* PUT <{column: value}> /overview/productID/products
+* PUT <{column: value}> /overview/productID/forms
+* PUT <{column: value}> /overview/productID/sellers
 
-* DELETE <{filter}> /overview
+* DELETE /overview/productID
 
 > Some usage instructions
 
