@@ -174,9 +174,9 @@
     "product_name": "Gorgeous Frozen Bacon"
 }}> /overview
 
-* PUT <{column: value}> /overview/productID/products
-* PUT <{column: value}> /overview/productID/forms
-* PUT <{column: value}> /overview/productID/sellers
+* PUT <{column: value}> /overview/products/:productID
+* PUT <{column: value}> /overview/forms/:productID
+* PUT <{column: value}> /overview/other_sellers/:productID
 
 * DELETE /overview/productID
 
