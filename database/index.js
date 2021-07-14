@@ -77,18 +77,45 @@ const deleteRecord = (id, resolve, reject) => {
 }
 
 const updateRecordProducts = (id, filter, resolve, reject) => {
+  let columns = '';
+  let changes = '';
+  for (let key in filter) {
+    columns += key + ','
+    changes += filter[key] + ',';
+  }
+  columns = columns.slice(0, columns.length - 1);
+  changes = changes.slice(0, changes.length - 1);
 
+  client.query(`update products SET (${columns}) = (${changes}) where product_id = $1;`, [id], (err, results) => {
+    if (err) {throw err;}
+    resolve(results.rowCount);
+  })
+}
+
+const updateRecordSellers = (id, filter, resolve, reject) => {
+  let columns = '';
+  let changes = '';
+  for (let key in filter) {
+    columns += key + ','
+    changes += filter[key] + ',';
+  }
+  columns = columns.slice(0, columns.length - 1);
+  changes = changes.slice(0, changes.length - 1);
+
+  client.query(`update other_sellers SET (${columns}) = (${changes}) where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = $1);`, [id], (err, results) => {
+    if (err) {throw err;}
+    resolve(results.rowCount);
+  })
 }
 
 const updateRecordForms = (id, filter, resolve, reject) => {
 
 }
 
-const updateRecordSellers = (id, filter, resolve, reject) => {
-  
-}
 
-module.exports.updateRecord = updateRecord;
+module.exports.updateRecordProducts = updateRecordProducts;
+module.exports.updateRecordSellers = updateRecordSellers;
+module.exports.updateRecordForms = updateRecordForms;
 module.exports.deleteRecord = deleteRecord;
 module.exports.getRecord = getRecord;
 module.exports.createRecord = createRecord;

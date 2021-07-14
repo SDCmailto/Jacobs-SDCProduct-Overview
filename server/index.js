@@ -6,7 +6,7 @@ const path = require('path');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
-
+const bug = String.fromCodePoint(0x1F41E);
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -75,7 +75,7 @@ app.delete('/overview/:productid', jsonParser, (req, res) => {
   })
 })
 
-app.put('/overview/:productid/products', jsonParser, (req, res) => {
+app.put('/overview/products/:productid', jsonParser, (req, res) => {
   let filter = req.body;
   return new Promise ((resolve, reject) => {
     if (req.params.productid === undefined) {
@@ -87,14 +87,14 @@ app.put('/overview/:productid/products', jsonParser, (req, res) => {
     if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
       throw new Error ("error");
     }
-    res.status(200).json('updated' + JSON.stringify(record));
+    res.status(200).json('updated ' + JSON.stringify(record));
   })
   .catch(error => {
     res.status(404).send('An error has occured');
   })
 })
 
-app.put('/overview/:productid/sellers', jsonParser, (req, res) => {
+app.put('/overview/other_sellers/:productid', jsonParser, (req, res) => {
   let filter = req.body;
   return new Promise ((resolve, reject) => {
     if (req.params.productid === undefined) {
@@ -106,14 +106,14 @@ app.put('/overview/:productid/sellers', jsonParser, (req, res) => {
     if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
       throw new Error ("error");
     }
-    res.status(200).json('updated' + JSON.stringify(record));
+    res.status(200).json('updated ' + JSON.stringify(record));
   })
   .catch(error => {
-    res.status(404).send('An error has occured');
+    res.status(404).send('An error has occured ' + error);
   })
 })
 
-app.put('/overview/:productid/forms', jsonParser, (req, res) => {
+app.put('/overview/forms/:productid', jsonParser, (req, res) => {
   let filter = req.body;
   return new Promise ((resolve, reject) => {
     if (req.params.productid === undefined) {
