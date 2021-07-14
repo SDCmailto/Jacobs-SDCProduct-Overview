@@ -44,7 +44,6 @@ app.get('/overview/:productid', (req, res) => {
 
 
 app.post('/overview', jsonParser ,(req, res) => {
-  console.log(req.body);
   return new Promise ((resolve, reject) => {
     if (JSON.stringify(req.body) === '{}') {
       throw 'error';
@@ -53,7 +52,7 @@ app.post('/overview', jsonParser ,(req, res) => {
   })
   .then(record => {
     if (record === 201) {
-      res.status(201).json("Success");
+      res.status(201).json(req.body);
     }
   })
   .catch(error => {
@@ -61,19 +60,15 @@ app.post('/overview', jsonParser ,(req, res) => {
   })
 })
 
-app.delete('/overview', jsonParser, (req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
+app.delete('/overview/:productid', jsonParser, (req, res) => {
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
     }
-    return db.Overview.deleteOne(body);
+    db.deleteRecord(req.params.productid, resolve, reject);
   })
-  .then(record => {
-    if (JSON.stringify(record) === '{"n":0,"ok":1,"deletedCount":0}') {
-      throw new Error("Error");
-    }
-    res.status(200).json('deleted' + JSON.stringify(record));
+  .then(deleteCount => {
+    res.status(200).json('Successfully Deleted ' + deleteCount);
   })
   .catch(error => {
     res.status(404).send(error);
