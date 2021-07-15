@@ -52,7 +52,7 @@ const getRecord = async (id, resolve, reject) => {
       // console.log('sellers', results.rows);
       products['sellers'] = results.rows;
       let forms = await client.query(`select * from forms where product_id = $1;`, [id], (err, results) => {
-        if (err) { console.log(err, 'forms'); }
+        if (err) { throw err; }
         // console.log('forms', results.rows);
         products['forms'] = results.rows;
         resolve(products);
@@ -81,10 +81,12 @@ const updateRecordProducts = (id, filter, resolve, reject) => {
   let changes = '';
   for (let key in filter) {
     columns += key + ','
-    changes += filter[key] + ',';
+    if (typeof filter[key] === 'string') {
+      changes += "\'" + filter[key] + "\'" + ",";
+    } else {
+      changes += filter[key] + ',';
+    }
   }
-  columns = columns.slice(0, columns.length - 1);
-  changes = changes.slice(0, changes.length - 1);
 
   client.query(`update products SET (${columns}) = (${changes}) where product_id = $1;`, [id], (err, results) => {
     if (err) {throw err;}
@@ -95,21 +97,59 @@ const updateRecordProducts = (id, filter, resolve, reject) => {
 const updateRecordSellers = (id, filter, resolve, reject) => {
   let columns = '';
   let changes = '';
+  let columnCount = 0;
+  for (let key in filter) {
+    columnCount ++;
+    columns += key + ','
+    if (typeof filter[key] === 'string') {
+      changes += "\'" + filter[key] + "\'" + ",";
+    } else {
+      changes += filter[key] + ',';
+    }
+  }
+
+  columns = columns.slice(0, columns.length - 1);
+  changes = changes.slice(0, changes.length - 1);
+
+  if (columnCount > 1) {
+    client.query(`update other_sellers SET (${columns}) = (${changes}) where id = $1;`, [id], (err, results) => {
+      if (err) {throw err;}
+      resolve(results.rowCount);
+    })
+  } else {
+    client.query(`update other_sellers SET ${columns} = ${changes} where id = $1;`, [id], (err, results) => {
+      if (err) {throw err;}
+      resolve(results.rowCount);
+    })
+  }
+}
+
+const updateRecordForms = (id, filter, resolve, reject) => {
+  let columns = '';
+  let changes = '';
+  let columnCount = 0;
   for (let key in filter) {
     columns += key + ','
-    changes += filter[key] + ',';
+    if (typeof filter[key] === 'string') {
+      changes += "\'" + filter[key] + "\'" + ",";
+    } else {
+      changes += filter[key] + ',';
+    }
   }
   columns = columns.slice(0, columns.length - 1);
   changes = changes.slice(0, changes.length - 1);
 
-  client.query(`update other_sellers SET (${columns}) = (${changes}) where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = $1);`, [id], (err, results) => {
-    if (err) {throw err;}
-    resolve(results.rowCount);
-  })
-}
-
-const updateRecordForms = (id, filter, resolve, reject) => {
-
+  if (columnCount > 1) {
+    client.query(`update forms SET (${columns}) = (${changes}) where id = $1`, [id], (err, results) => {
+      if (err) {throw err;}
+      resolve(results.rowCount);
+    })
+  } else {
+    client.query(`update forms SET ${columns} = ${changes} where id = $1`, [id], (err, results) => {
+      if (err) {throw err;}
+      resolve(results.rowCount);
+    })
+  }
 }
 
 
