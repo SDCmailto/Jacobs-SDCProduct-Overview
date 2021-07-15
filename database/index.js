@@ -152,7 +152,31 @@ const updateRecordForms = (id, filter, resolve, reject) => {
   }
 }
 
+let getOtherSellers = (id, resolve, reject) => {
+  client.query(`select * from other_sellers where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = $1);`, [id], async (err, results) => {
+    if (err) { throw err; }
+    resolve(results.rows)
+  });
+}
 
+let getPrice = (id, resolve, reject) => {
+  client.query(`select price from products where product_id = $1;`, [id], async (err, record) => {
+    if (err) { throw err; }
+    resolve(record.rows[0].price.toString())
+  });
+}
+
+
+let getInventory = (id, resolve, reject) => {
+  client.query(`select inventory from products where product_id = $1;`, [id], async (err, record) => {
+    if (err) { throw err; }
+    resolve(record.rows[0].inventory.toString())
+  });
+}
+
+module.exports.getInventory = getInventory
+module.exports.getPrice = getPrice;
+module.exports.getOtherSellers = getOtherSellers;
 module.exports.updateRecordProducts = updateRecordProducts;
 module.exports.updateRecordSellers = updateRecordSellers;
 module.exports.updateRecordForms = updateRecordForms;
