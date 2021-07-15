@@ -125,7 +125,7 @@ app.put('/overview/forms/:productid', jsonParser, (req, res) => {
     if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
       throw new Error ("error");
     }
-    res.status(200).json('updated' + JSON.stringify(record));
+    res.status(200).json('updated ' + JSON.stringify(record));
   })
   .catch(error => {
     res.status(404).send('An error has occured');
