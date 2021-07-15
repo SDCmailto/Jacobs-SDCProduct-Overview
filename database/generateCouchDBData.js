@@ -17,13 +17,13 @@ let edition = ['Special Edition', "Collector's Edition", "Limited Collector's Ed
 
 
 
-const sellerGenerator = () => {
+const sellerGenerator = (j) => {
   let sellers = [];
   const num = ~~(Math.random() * 8);
   for (let i = 0; i < num; i++) {
     let random = Math.random();
     let record = {};
-    record['id'] = uuid.v1();
+    record['id'] = Math.floor(random * j);
     record['discs'] = ~~(random * 50);
     record['price'] = ~~(random * 40) + 5;
     record['newfrom'] = ~~(random * 35) + 5;
@@ -40,12 +40,13 @@ form = ['DVD', 'Blu-ray', '4K', 'Prime Video'];
 
 
 
-const formGenerator = () => {
+const formGenerator = (j) => {
   let forms = [];
   for (let i = 0; i < 4; i++) {
+    let random = Math.random();
     let obj = {};
-    obj.id = uuid.v1();
-    obj.price = ~~(Math.random() * 40) + 5;
+    obj.id = Math.floor(random * j);
+    obj.price = ~~(random * 40) + 5;
     obj.form = form[i];
     forms.push(obj);
   }
@@ -79,20 +80,19 @@ let productMaterialsLength = productMaterials.length
 let primeLength = 2;
 let companyLength = company.length;
 
-const dataGenerator = (resolve, k) => {
-  for (let i = k; i < k + 5000; i++) {
+const dataGenerator = (resolve, k, partition) => {
+  for (let i = k; i < k + 4999; i++) {
     // console.log(i);
     let random = Math.random();
     let secondRandom = Math.random() - .2;
     let record = {};
-    record['_id'] = uuid.v1();
-    record['product_id'] = (i + 1);
+    record['_id'] = partition + ":" + i.toString();
     record['product_name'] = productNames[~~(random * productNameLength)];
     record['package_name'] = productMaterials[~~(random * productMaterialsLength)];
     record['list_price'] = ~~(random * 40) + 7;
     record['price'] = ~~(random * 38) + 6;
-    record.sellers = sellerGenerator();
-    record.forms = formGenerator();
+    record.sellers = sellerGenerator(i);
+    record.forms = formGenerator(i);
     record['prime'] = prime[~~(random * primeLength)];
     record['sold_by'] = company[~~(random * companyLength)];
     record['ships_from'] = company[~~(random * companyLength)];
@@ -112,19 +112,22 @@ const dataGenerator = (resolve, k) => {
 
 
 
-function generateData(i) {
+function generateData(i, partition) {
   return new Promise(function(resolve, reject) {
-      dataGenerator(resolve, i)
+      let newPartition = 'set' + partition.toString();
+      console.log('newPartition', newPartition);
+      dataGenerator(resolve, i, newPartition)
   })
   .then((i) => {
     let json = {"docs": productInfo};
     productInfo = [];
     i += 5000
-    axios.post('http://admin:student123@127.0.0.1:5984/amazon-products/_bulk_docs', json, {'Content-Type': 'application/json'})
+
+    console.log(i, partition);
+    axios.post('http://admin:student123@127.0.0.1:5984/practice-database/_bulk_docs', json, {'Content-Type': 'application/json'})
     .then(function (response) {
-      if (i < 10000001) {
-        console.log('i', i);
-        generateData(i);
+      if (i < 100000) {
+        generateData(i, partition);
       }
     })
     .catch(function (error) {
@@ -139,7 +142,7 @@ function generateData(i) {
   })
 };
 
-generateData(9500000);
+generateData(50000, 2);
 
 
-//main part of pull request 
+//main part of pull request

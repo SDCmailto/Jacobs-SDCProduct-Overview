@@ -6,6 +6,7 @@ const path = require('path');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
+const bug = String.fromCodePoint(0x1F41E);
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -24,72 +25,107 @@ app.get('*/dp/:productid', (req, res) => {
 });
 
 app.get('/overview/:productid', (req, res) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
-      }
-      return db.getRecord(id);
-    })
-    .then(record => {
-      if (JSON.stringify(record) === "[]") {
-        throw new Error("Error!");
-      }
-      res.json(record[0]);
-    })
-    .catch(error => {
-      res.status(404).send(error);
-    })
+  return new Promise ((resolve, reject) => {
+    if (!req.params.productid) {
+      throw id;
+    }
+    db.getRecord(req.params.productid, resolve, reject);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === "[]") {
+      throw new Error("Error!");
+    }
+    res.json(record);
+  })
+  .catch(error => {
+    res.status(404).send(error);
+  })
 });
 
+
 app.post('/overview', jsonParser ,(req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
+  return new Promise ((resolve, reject) => {
+    if (JSON.stringify(req.body) === '{}') {
+      throw 'error';
     }
-    return db.Overview.create(body);
+    db.createRecord(req.body, resolve, reject);
   })
   .then(record => {
-    res.status(201).json(record);
+    if (record === 201) {
+      res.status(201).json(req.body);
+    }
   })
   .catch(error => {
     res.status(404).send(error);
   })
 })
 
-app.delete('/overview', jsonParser, (req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
+app.delete('/overview/:productid', jsonParser, (req, res) => {
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
     }
-    return db.Overview.deleteOne(body);
+    db.deleteRecord(req.params.productid, resolve, reject);
   })
-  .then(record => {
-    if (JSON.stringify(record) === '{"n":0,"ok":1,"deletedCount":0}') {
-      throw new Error("Error");
-    }
-    res.status(200).json('deleted' + JSON.stringify(record));
+  .then(deleteCount => {
+    res.status(200).json('Successfully Deleted ' + deleteCount);
   })
   .catch(error => {
     res.status(404).send(error);
   })
 })
 
-app.put('/overview', jsonParser, (req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
+app.put('/overview/products/:productid', jsonParser, (req, res) => {
+  let filter = req.body;
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
     }
-    return db.Overview.updateOne(body[0], body[1]);
+    db.updateRecordProducts(req.params.productid, filter, resolve, reject);
   })
   .then(record => {
     if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
       throw new Error ("error");
     }
-    res.status(200).json('updated' + JSON.stringify(record));
+    res.status(200).json('updated ' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.status(404).send('An error has occured');
+  })
+})
+
+app.put('/overview/other_sellers/:productid', jsonParser, (req, res) => {
+  let filter = req.body;
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
+    }
+    db.updateRecordSellers(req.params.productid, filter, resolve, reject);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+      throw new Error ("error");
+    }
+    res.status(200).json('updated ' + JSON.stringify(record));
+  })
+  .catch(error => {
+    res.status(404).send('An error has occured ' + error);
+  })
+})
+
+app.put('/overview/forms/:productid', jsonParser, (req, res) => {
+  let filter = req.body;
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
+    }
+    db.updateRecordForms(req.params.productid, filter, resolve, reject);
+  })
+  .then(record => {
+    if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+      throw new Error ("error");
+    }
+    res.status(200).json('updated ' + JSON.stringify(record));
   })
   .catch(error => {
     res.status(404).send('An error has occured');
@@ -149,7 +185,7 @@ app.get(urlAPIInventory, (req, res, next) => {
     })
 })
 
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 5984;
 // app.listen(port, () => {
 //   console.log(`Listening to port ${port}`);
 // })
