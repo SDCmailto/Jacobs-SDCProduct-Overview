@@ -35,7 +35,7 @@ app.get('/overview/:productid', (req, res) => {
     if (JSON.stringify(record) === "[]") {
       throw new Error("Error!");
     }
-    res.json(record);
+    res.status(200).json(record);
   })
   .catch(error => {
     res.status(404).send(error);

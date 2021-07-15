@@ -4,6 +4,9 @@ const config = require('../config.js');
 const client = new Client(config);
 client.connect();
 const bug = String.fromCodePoint(0x1F41E);
+require("babel-core/register");
+require("babel-polyfill");
+
 
 const createRecord = (body, resolve, reject) => {
 
@@ -45,11 +48,13 @@ const createRecord = (body, resolve, reject) => {
 
 const getRecord = async (id, resolve, reject) => {
   await client.query(`select * from products where product_id = $1`, [id], async (err, results) => {
-    if (err) { console.log(err + ' products'); }
-    products = results.rows[0];
+    if (err) { throw err; }
+    let products = results.rows[0];
     let sellers = await client.query(`select * from other_sellers where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = $1);`, [id], async (err, results) => {
-      if (err) { console.log(err + 'sellers'); }
+      if (err) { throw err; }
       // console.log('sellers', results.rows);
+
+      if (!products) { reject('error'); return}
       products['sellers'] = results.rows;
       let forms = await client.query(`select * from forms where product_id = $1;`, [id], (err, results) => {
         if (err) { throw err; }
@@ -77,6 +82,7 @@ const deleteRecord = (id, resolve, reject) => {
 }
 
 const updateRecordProducts = (id, filter, resolve, reject) => {
+
   let columns = '';
   let changes = '';
   for (let key in filter) {
@@ -87,9 +93,11 @@ const updateRecordProducts = (id, filter, resolve, reject) => {
       changes += filter[key] + ',';
     }
   }
+  columns = columns.slice(0, columns.length - 1);
+  changes = changes.slice(0, changes.length - 1);
 
   client.query(`update products SET (${columns}) = (${changes}) where product_id = $1;`, [id], (err, results) => {
-    if (err) {throw err;}
+    if (err) {reject(err); return;}
     resolve(results.rowCount);
   })
 }
@@ -157,14 +165,14 @@ let getOtherSellers = (id, resolve, reject) => {
     if (err) { throw err; }
     resolve(results.rows)
   });
-}
+};
 
 let getPrice = (id, resolve, reject) => {
   client.query(`select price from products where product_id = $1;`, [id], async (err, record) => {
     if (err) { throw err; }
     resolve(record.rows[0].price.toString())
   });
-}
+};
 
 
 let getInventory = (id, resolve, reject) => {
@@ -172,7 +180,7 @@ let getInventory = (id, resolve, reject) => {
     if (err) { throw err; }
     resolve(record.rows[0].inventory.toString())
   });
-}
+};
 
 module.exports.getInventory = getInventory
 module.exports.getPrice = getPrice;
