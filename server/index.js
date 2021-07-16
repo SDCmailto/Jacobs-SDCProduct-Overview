@@ -25,6 +25,7 @@ app.get('*/dp/:productid', (req, res) => {
 });
 
 app.get('/overview/:productid', (req, res) => {
+  console.log(req.params.productid);
   return new Promise ((resolve, reject) => {
     if (!req.params.productid) {
       throw id;
