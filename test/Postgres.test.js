@@ -45,35 +45,142 @@ describe('PUT /overview/products/500', function() {
   });
 });
 
-// describe('PUT /overview', function() {
-//   it('responds with 200 updating record ', function(done) {
-//     request(app)
-//       .put('/overview')
-//       .send([{"product_id": "-2"}, {"product_name": "Hey there :) "}])
-//       .set('Accept', 'application/json')
-//       .expect(404, done);
-//   });
-// });
+describe('PUT fail /overview/other_sellers', function() {
+  it('responds with 404 for failing to update record ', function(done) {
+    request(app)
+      .put('/overview/other_sellers')
+      .send({"price": 3, "product_name": "Hey there :) "})
+      .set('Accept', 'application/json')
+      .expect(404, done);
+  });
+});
 
-// describe('failed DELETE /overview', function() {
-//   it('responds with 404 for failed delete ', function(done) {
-//     request(app)
-//       .delete('/overview')
-//       .send({"product_id": "-2"})
-//       .set('Accept', 'application/json')
-//       .expect(404, done);
-//   });
-// });
+describe('failed DELETE /overview', function() {
+  it('responds with 404 for failed delete ', function(done) {
+    request(app)
+      .delete('/overview/2832928')
+      .send({"product_id": "-2"})
+      .set('Accept', 'application/json')
+      .expect(404, done);
+  });
+});
 
-// describe('POST /overview', function() {
-//   it('responds with 404 for repeat post request', function(done) {
-//       request(app)
-//         .post('/overview')
-//         .send({"product_id":"105","product_name":"Small Cotton Tuna","package_name":"Cotton","other_sellers":[{"seller_id":"de6c8c30-d5fd-11eb-aad4-8d3981060c25","discs":6,"price":6,"newfrom":35,"usedfrom":23,"edition":null,"form":"DVD","release_date":"2020-07-02T19:23:50.858Z"},{"seller_id":"de6cb340-d5fd-11eb-aad4-8d3981060c25","discs":9,"price":36,"newfrom":15,"usedfrom":31,"edition":"Collector's Edition","form":"4K","release_date":"2020-07-05T23:43:05.581Z"},{"seller_id":"de6cb341-d5fd-11eb-aad4-8d3981060c25","discs":5,"price":30,"newfrom":30,"usedfrom":31,"edition":"Collector's Edition","form":"DVD","release_date":"2020-09-16T15:31:05.096Z"},{"seller_id":"de6cb342-d5fd-11eb-aad4-8d3981060c25","discs":29,"price":21,"newfrom":5,"usedfrom":16,"edition":null,"form":"DVD","release_date":"2021-06-07T00:33:57.545Z"},{"seller_id":"de6cb343-d5fd-11eb-aad4-8d3981060c25","discs":16,"price":42,"newfrom":25,"usedfrom":11,"edition":"Special Edition","form":"DVD","release_date":"2020-09-20T02:07:06.756Z"},{"seller_id":"de6cb344-d5fd-11eb-aad4-8d3981060c25","discs":15,"price":28,"newfrom":19,"usedfrom":12,"edition":"Special Edition","form":"DVD","release_date":"2020-08-12T22:06:45.768Z"},{"seller_id":"de6cb345-d5fd-11eb-aad4-8d3981060c25","discs":5,"price":36,"newfrom":27,"usedfrom":14,"edition":"Special Extended Version","form":"Blu-ray","release_date":"2020-08-20T15:54:09.853Z"},{"seller_id":"de6cb346-d5fd-11eb-aad4-8d3981060c25","discs":29,"price":20,"newfrom":8,"usedfrom":26,"edition":"Limited Edition","form":"DVD","release_date":"2021-01-05T20:40:21.359Z"},{"seller_id":"de6cb347-d5fd-11eb-aad4-8d3981060c25","discs":35,"price":11,"newfrom":22,"usedfrom":28,"edition":"Collector's Edition","form":"DVD","release_date":"2020-09-08T19:28:11.269Z"}],"price":{"list_price":34,"price":28},"shipping":{"prime":true,"sold_by":"Ullrich, Konopelski and Cole","ships_from":"Ullrich, Konopelski and Cole"},"inventory":{"in_stock":true,"inventory":3359},"form":[{"price":26,"form":"DVD"},{"price":18,"form":"Blu-ray"},{"price":10,"form":"4K"},{"price":23,"form":"Prime Video"}]})
-//         .expect(404)
-//         .end(function(err, res) {
-//           if (err) return done(err);
-//           return done();
-//         });
-//     });
-//   });
+describe('POST /overview', function() {
+  it('responds with 200 for successful post request', function(done) {
+      request(app)
+        .post('/overview')
+        .send({
+          "id": "426dd39f-dae2-11eb-b9e7-c3a86b9617fb",
+          "list_price": 13,
+          "price": 11,
+          "prime": "true",
+          "sold_by": "Amazon.com",
+          "ships_from": "Amazon.com",
+          "product_id": 203939,
+          "package_name": "Wooden",
+          "product_name": "Tasty Steel Hat",
+          "in_stock": "true",
+          "inventory": 2774,
+          "sellers": [
+              {
+                  "id": "426dd3a3-dae2-11eb-b9e7-c3a86b9617fb",
+                  "discs": 28,
+                  "price": 28,
+                  "newfrom": "25",
+                  "usedfrom": "20",
+                  "edition": "Special Extended Version",
+                  "form": "4K",
+                  "release_date": "2021-02-22T21:30:15.718Z"
+              },
+              {
+                  "id": "426dd3a1-dae2-11eb-b9e7-c3a86b9617fb",
+                  "discs": 14,
+                  "price": 16,
+                  "newfrom": "15",
+                  "usedfrom": "11",
+                  "edition": "Collector's Edition",
+                  "form": "Blu-ray",
+                  "release_date": "2021-06-15T01:48:29.295Z"
+              },
+              {
+                  "id": "426dd3a4-dae2-11eb-b9e7-c3a86b9617fb",
+                  "discs": 2,
+                  "price": 6,
+                  "newfrom": "6",
+                  "usedfrom": "4",
+                  "edition": "Special Edition",
+                  "form": "DVD",
+                  "release_date": "2021-01-29T07:11:45.479Z"
+              },
+              {
+                  "id": "426dd3a0-dae2-11eb-b9e7-c3a86b9617fb",
+                  "discs": 37,
+                  "price": 34,
+                  "newfrom": "31",
+                  "usedfrom": "25",
+                  "edition": "Limited Edition",
+                  "form": "4K",
+                  "release_date": "2020-07-28T04:48:14.956Z"
+              },
+              {
+                  "id": "426dd3a2-dae2-11eb-b9e7-c3a86b9617fb",
+                  "discs": 8,
+                  "price": 11,
+                  "newfrom": "10",
+                  "usedfrom": "7",
+                  "edition": "Special Edition",
+                  "form": "DVD",
+                  "release_date": "2020-10-23T19:06:20.526Z"
+              }
+          ],
+          "forms": [
+              {
+                  "id": "426dd3a5-dae2-11eb-b9e7-c3a86b9617fb",
+                  "price": 8,
+                  "form": "DVD",
+                  "id_products_foreign": "426dd39f-dae2-11eb-b9e7-c3a86b9617fb",
+                  "product_id": 203939
+              },
+              {
+                  "id": "426dd3a6-dae2-11eb-b9e7-c3a86b9617fb",
+                  "price": 20,
+                  "form": "Blu-ray",
+                  "id_products_foreign": "426dd39f-dae2-11eb-b9e7-c3a86b9617fb",
+                  "product_id": 203939
+              },
+              {
+                  "id": "426dd3a7-dae2-11eb-b9e7-c3a86b9617fb",
+                  "price": 37,
+                  "form": "4K",
+                  "id_products_foreign": "426dd39f-dae2-11eb-b9e7-c3a86b9617fb",
+                  "product_id": 203939
+              },
+              {
+                  "id": "426dd3a8-dae2-11eb-b9e7-c3a86b9617fb",
+                  "price": 38,
+                  "form": "Prime Video",
+                  "id_products_foreign": "426dd39f-dae2-11eb-b9e7-c3a86b9617fb",
+                  "product_id": 203939
+              }
+          ]
+      })
+        .expect(201)
+        .end(function(err, res) {
+          if (err) return done(err);
+          return done();
+        });
+    });
+  });
+
+  describe('POST /overview', function() {
+    it('responds with 404 for failed post request', function(done) {
+        request(app)
+          .post('/overview')
+          .send({"hi there": 92})
+          .expect(404)
+          .end(function(err, res) {
+            if (err) return done(err);
+            return done();
+          });
+      });
+    });

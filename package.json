@@ -9,7 +9,7 @@
     "start": "nodemon server/index.js",
     "generatepgdata": " node --max-old-space-size=4096 ./database/postgresSeed",
     "seedpgdatabase": "node --max-old-space-size=4096 database/postgresInsert",
-    "test": "jest --detectOpenHandles"
+    "test": "lsof -ti:5984 | xargs kill; jest --detectOpenHandles"
   },
   "repository": {
     "type": "git",

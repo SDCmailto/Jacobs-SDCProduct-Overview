@@ -13,9 +13,16 @@ const createRecord = (body, resolve, reject) => {
   let productArray = [];
   let productID = uuid.v1();
   productArray.push(productID, body.list_price, body.price, body.prime, body.sold_by, body.ships_from, body.product_id, body.package_name, body.product_name, body.in_stock, body.inventory);
-
+  if (!body.sellers) {
+    reject('error')
+    return;
+  }
+  if (!body.forms) {
+    reject('error')
+    return;
+  }
   client.query(`insert into products (id, list_price, price, prime, sold_by, ships_from, product_id, package_name, product_name, in_stock, inventory) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, productArray, (err, result) => {
-    if (err) { throw err; }
+    if (err) { reject(err) }
 
     if (body.sellers.length) {
       for (let i = 0; i < body.sellers.length; i++) {
@@ -24,11 +31,11 @@ const createRecord = (body, resolve, reject) => {
         sellerArray.push(body.sellers[i].discs, body.sellers[i].price, body.sellers[i].newfrom, body.sellers[i].usedfrom, body.sellers[i].edition, body.sellers[i].from, body.sellers[i].release_date, sellerID);
 
         client.query(`insert into other_sellers (discs, price, newfrom, usedfrom, edition, form, release_date, id) values ($1, $2, $3, $4, $5, $6, $7, $8)`, sellerArray, (err, result) => {
-          if (err) { throw err; }
+          if (err) { reject(err); }
           let productsAndOtherSellersArray = [uuid.v1(), productID, sellerID, body.product_id];
 
           client.query(`insert into products_and_other_sellers (id, id_products_foreign, id_other_sellers_foreign, product_id) values ($1, $2, $3, $4);`, productsAndOtherSellersArray, (err, results) => {
-            if (err) { throw err ; }
+            if (err) { reject(err); }
           })
         })
       }
@@ -73,7 +80,9 @@ const deleteRecord = (id, resolve, reject) => {
     client.query(`delete from forms where product_id = $1`, [id], (err, results) => {
       deleteCount += results.rowCount;
       client.query(`delete from products where product_id = $1`, [id], (err, results) => {
-        console.log(bug);
+        if (results.rowCount === 0) {
+          reject(err);
+        }
         deleteCount += results.rowCount;
         resolve(deleteCount);
       })
