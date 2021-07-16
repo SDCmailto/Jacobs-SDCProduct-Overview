@@ -25,6 +25,7 @@ app.get('*/dp/:productid', (req, res) => {
 });
 
 app.get('/overview/:productid', (req, res) => {
+  console.log(req.params.productid);
   return new Promise ((resolve, reject) => {
     if (!req.params.productid) {
       throw id;
@@ -35,7 +36,7 @@ app.get('/overview/:productid', (req, res) => {
     if (JSON.stringify(record) === "[]") {
       throw new Error("Error!");
     }
-    res.json(record);
+    res.status(200).json(record);
   })
   .catch(error => {
     res.status(404).send(error);
@@ -137,15 +138,15 @@ const urlAPIPrice = '/overview-api/price/:productid';
 const urlAPIInventory = '/overview-api/inventory/:productid';
 
 app.get(urlAPISeller, (req, res, next) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
-      }
-      return db.getRecord(id);
-    })
+
+  return new Promise ((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
+    }
+    db.getOtherSellers(req.params.productid, resolve, reject);
+  })
     .then(records => {
-      res.send(records[0].other_sellers);
+      res.send(records);
     })
     .catch(error => {
       res.send('An error has occurred');
@@ -153,15 +154,14 @@ app.get(urlAPISeller, (req, res, next) => {
 })
 
 app.get(urlAPIPrice, (req, res, next) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
-      }
-      return db.getRecord(id);
-    })
-    .then(records => {
-      res.send(records[0].price);
+  return new Promise((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
+    }
+    db.getPrice(req.params.productid, resolve, reject);
+  })
+    .then(price => {
+      res.send(price);
     })
     .catch(error => {
       res.send('An error has occurred');
@@ -169,16 +169,14 @@ app.get(urlAPIPrice, (req, res, next) => {
 })
 
 app.get(urlAPIInventory, (req, res, next) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
-      }
-      return db.getRecord(id);
-    })
-    .then(records => {
-      res.send(records[0].inventory);
-      next();
+  return new Promise((resolve, reject) => {
+    if (req.params.productid === undefined) {
+      throw 'error';
+    }
+    db.getInventory(req.params.productid, resolve, reject);
+  })
+    .then(inventory => {
+      res.send(inventory);
     })
     .catch(error => {
       res.send('An error has occurred');

@@ -35,23 +35,24 @@ class Overview extends React.Component {
 
     // const productid = new URL(window.location).pathname.slice(4, );
     const productid = window.location.search.slice(2);
-
+    console.log(productid);
     $.ajax({
-      url: `http://localhost:3002/overview/` + productid,
+      url: `http://localhost:5984/overview/` + productid,
       method: 'GET',
       success: (res) => {
+        console.log('res', res);
         this.setState({
           product_name: res.product_name,
           package_name: res.package_name,
-          list_price: res.price.list_price,
-          price: res.price.price,
-          save: res.price.list_price - res.price.price,
-          save_pct: Math.round((res.price.list_price - res.price.price) / res.price.list_price * 100, 0),
-          sellers: res.other_sellers,
-          form: res.form,
-          in_stock: res.inventory.in_stock,
-          ships_from: res.shipping.ships_from,
-          sold_by: res.shipping.sold_by
+          list_price: res.list_price,
+          price: res.price,
+          save: res.list_price - res.price,
+          save_pct: Math.round((res.list_price - res.price) / res.list_price * 100, 0),
+          sellers: res.sellers,
+          form: res.forms,
+          in_stock: res.in_stock,
+          ships_from: res.ships_from,
+          sold_by: res.sold_by
         })
       },
       error: (error) => {
