@@ -1,159 +1,228 @@
+// var newrelic = require('newrelic');
+////
 const express = require('express');
-const app = express();
 const shrinkRay = require('shrink-ray-current');
 const db = require('../database/index.js');
 const path = require('path');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
+const bug = String.fromCodePoint(0x1F41E);
+const cluster = require('cluster')
+const os = require('os')
+
+var Memcached = require('memcached');
+var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, remove: true});
 
 
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+if (cluster.isMaster) {
+  const cpuCount = os.cpus().length
+  for (let i = 0; i < cpuCount; i++) {
+    cluster.fork()
+  }
+} else {
+  const app = express();
+  var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-app.use(shrinkRay());
+  app.use(shrinkRay());
 
-app.use(express.static(path.join(__dirname, '/../client/dist'), {maxAge: '30d'}));
+  app.use(express.static(path.join(__dirname, '/../client/dist'), {maxAge: '30d'}));
 
-app.use( (req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  next();
-});
+  app.use( (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    next();
+  });
 
-app.get('*/dp/:productid', (req, res) => {
-  res.sendFile(path.join(__dirname, '/../client/dist/index.html'));
-});
+  app.get('*/dp/:productid', (req, res) => {
+    res.sendFile(path.join(__dirname, '/../client/dist/index.html'));
+  });
 
-app.get('/overview/:productid', (req, res) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
+  let cache = (req, res, next) => {memcached.get(req.url, function (err, data) {
+    if (err) { res.status(500).send();}
+    if (!data) {
+      next();
+    }
+    if (data) {
+      data = JSON.parse(data);
+      res.status(200).json(data);
+    }
+  });
+}
+  app.get('/overview/:productid', cache, (req, res) => {
+    console.log(req.params.productid);
+    return new Promise ((resolve, reject) => {
+      if (!req.params.productid) {
         throw id;
       }
-      return db.getRecord(id);
+      db.getRecord(req.params.productid, resolve, reject);
     })
     .then(record => {
       if (JSON.stringify(record) === "[]") {
         throw new Error("Error!");
       }
-      res.json(record[0]);
+      let stringifiedRecord = JSON.stringify(record);
+
+      // memcached.set(req.url, stringifiedRecord, 36000, function (err, data) {
+      //   if (err) {throw err;}
+      // })
+      res.status(200).json(record);
+    })
+    .catch(error => {
+      console.log('error', error);
+      res.status(404).send(error);
+    })
+  });
+
+
+  app.post('/overview', jsonParser ,(req, res) => {
+    return new Promise ((resolve, reject) => {
+      if (JSON.stringify(req.body) === '{}') {
+        throw 'error';
+      }
+      db.createRecord(req.body, resolve, reject);
+    })
+    .then(record => {
+      if (record === 201) {
+        res.status(201).send();
+      }
     })
     .catch(error => {
       res.status(404).send(error);
     })
-});
+  })
 
-app.post('/overview', jsonParser ,(req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
-    }
-    return db.Overview.create(body);
-  })
-  .then(record => {
-    res.status(201).json(record);
-  })
-  .catch(error => {
-    res.status(404).send(error);
-  })
-})
-
-app.delete('/overview', jsonParser, (req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
-    }
-    return db.Overview.deleteOne(body);
-  })
-  .then(record => {
-    if (JSON.stringify(record) === '{"n":0,"ok":1,"deletedCount":0}') {
-      throw new Error("Error");
-    }
-    res.status(200).json('deleted' + JSON.stringify(record));
-  })
-  .catch(error => {
-    res.status(404).send(error);
-  })
-})
-
-app.put('/overview', jsonParser, (req, res) => {
-  Promise.resolve(req.body)
-  .then(body => {
-    if (!body) {
-      throw body;
-    }
-    return db.Overview.updateOne(body[0], body[1]);
-  })
-  .then(record => {
-    if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
-      throw new Error ("error");
-    }
-    res.status(200).json('updated' + JSON.stringify(record));
-  })
-  .catch(error => {
-    res.status(404).send('An error has occured');
-  })
-})
-
-const urlAPISeller = '/overview-api/otherseller/:productid';
-const urlAPIPrice = '/overview-api/price/:productid';
-const urlAPIInventory = '/overview-api/inventory/:productid';
-
-app.get(urlAPISeller, (req, res, next) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
+  app.delete('/overview/:productid', jsonParser, (req, res) => {
+    return new Promise ((resolve, reject) => {
+      if (req.params.productid === undefined) {
+        throw 'error';
       }
-      return db.getRecord(id);
+      db.deleteRecord(req.params.productid, resolve, reject);
     })
-    .then(records => {
-      res.send(records[0].other_sellers);
+    .then(deleteCount => {
+      res.status(200).json('Successfully Deleted ' + deleteCount);
     })
     .catch(error => {
-      res.send('An error has occurred');
+      res.status(404).send(error);
     })
-})
+  })
 
-app.get(urlAPIPrice, (req, res, next) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
+  app.put('/overview/products/:productid', jsonParser, (req, res) => {
+    let filter = req.body;
+    return new Promise ((resolve, reject) => {
+      if (req.params.productid === undefined) {
+        throw 'error';
       }
-      return db.getRecord(id);
+      db.updateRecordProducts(req.params.productid, filter, resolve, reject);
     })
-    .then(records => {
-      res.send(records[0].price);
+    .then(record => {
+      if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+        throw new Error ("error");
+      }
+      res.status(200).json('updated ' + JSON.stringify(record));
     })
     .catch(error => {
-      res.send('An error has occurred');
+      res.status(404).send('An error has occured');
     })
-})
+  })
 
-app.get(urlAPIInventory, (req, res, next) => {
-  Promise.resolve(req.params.productid)
-    .then(id => {
-      if (!id) {
-        throw id;
+  app.put('/overview/other_sellers/:productid', jsonParser, (req, res) => {
+    let filter = req.body;
+    return new Promise ((resolve, reject) => {
+      if (req.params.productid === undefined) {
+        throw 'error';
       }
-      return db.getRecord(id);
+      db.updateRecordSellers(req.params.productid, filter, resolve, reject);
     })
-    .then(records => {
-      res.send(records[0].inventory);
-      next();
+    .then(record => {
+      if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+        throw new Error ("error");
+      }
+      res.status(200).json('updated ' + JSON.stringify(record));
     })
     .catch(error => {
-      res.send('An error has occurred');
+      res.status(404).send('An error has occured ' + error);
     })
+  })
+
+  app.put('/overview/forms/:productid', jsonParser, (req, res) => {
+    let filter = req.body;
+    return new Promise ((resolve, reject) => {
+      if (req.params.productid === undefined) {
+        throw 'error';
+      }
+      db.updateRecordForms(req.params.productid, filter, resolve, reject);
+    })
+    .then(record => {
+      if (JSON.stringify(record) === '{"n":0,"nModified":0,"ok":1}') {
+        throw new Error ("error");
+      }
+      res.status(200).json('updated ' + JSON.stringify(record));
+    })
+    .catch(error => {
+      res.status(404).send('An error has occured');
+    })
+  })
+
+  const urlAPISeller = '/overview-api/otherseller/:productid';
+  const urlAPIPrice = '/overview-api/price/:productid';
+  const urlAPIInventory = '/overview-api/inventory/:productid';
+
+  app.get(urlAPISeller, (req, res, next) => {
+
+    return new Promise ((resolve, reject) => {
+      if (req.params.productid === undefined) {
+        throw 'error';
+      }
+      db.getOtherSellers(req.params.productid, resolve, reject);
+    })
+      .then(records => {
+        res.send(records);
+      })
+      .catch(error => {
+        res.send('An error has occurred');
+      })
+  })
+
+  app.get(urlAPIPrice, (req, res, next) => {
+    return new Promise((resolve, reject) => {
+      if (req.params.productid === undefined) {
+        throw 'error';
+      }
+      db.getPrice(req.params.productid, resolve, reject);
+    })
+      .then(price => {
+        res.send(price);
+      })
+      .catch(error => {
+        res.send('An error has occurred');
+      })
+  })
+
+  app.get(urlAPIInventory, (req, res, next) => {
+    return new Promise((resolve, reject) => {
+      if (req.params.productid === undefined) {
+        throw 'error';
+      }
+      db.getInventory(req.params.productid, resolve, reject);
+    })
+      .then(inventory => {
+        res.send(inventory);
+      })
+      .catch(error => {
+        res.send('An error has occurred');
+      })
+  })
+
+  const port = process.env.PORT || 5984;
+
+
+  const server = app.listen(port, () => console.log(`Listening at port ${port}`));
+  module.exports = server;
+
+}
+
+cluster.on('exit', (worker) => {
+  console.log('mayday! mayday! worker', worker.id, ' is no more!')
+  cluster.fork()
 })
-
-const port = process.env.PORT || 5984;
-// app.listen(port, () => {
-//   console.log(`Listening to port ${port}`);
-// })
-
-const server = app.listen(port, () => console.log(`Listening at port ${port}`));
-module.exports = server;

@@ -1,7 +1,7 @@
 curl -X POST -d '{"selector": { "_id": {"$eq": "set11:10000018"}},"execution_stats": true, "use_index": ["_design/82219eb34590ad93a8e1a969ba4d0aa2ce71f6df", "id-json-index"]}' -H 'Content-Type: application/json' 'http://<login>:<password>@localhost:5984/partitioned-product-overview/_find'
 
 //get with index ^^
-//change
+//change change change 
 //change for github
 
 curl 'http://<login>:<password>@localhost:5984/partitioned-product-overview/_index'

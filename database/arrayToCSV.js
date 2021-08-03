@@ -3,7 +3,7 @@
 // let forms = require('./postgresSeed').forms;
 // let products_other_sellers_table_data = require('./postgresSeed').products_other_sellers_table_data;
 
-
+//
 // function arrayToCSV(objArray) {
 //   const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
 //   let str = `${Object.keys(array[0]).map(value => `"${value}"`).join(",")}` + '\r\n';
