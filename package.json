@@ -44,7 +44,6 @@
     "webpack-dev-server": "^1.16.5"
   },
   "dependencies": {
-    "@newrelic/native-metrics": "^6.0.2",
     "axios": "^0.21.1",
     "babel-jest": "^26.6.3",
     "bluebird": "^3.5.1",
