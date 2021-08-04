@@ -30,24 +30,19 @@ const createRecord =  (body, resolve, reject) => {
         for (let i = 0; i < body.sellers.length; i++) {
           let sellerArray = [];
           let sellerID = uuid.v1();
-          sellerArray.push(body.sellers[i].discs, body.sellers[i].price, body.sellers[i].newfrom, body.sellers[i].usedfrom, body.sellers[i].edition, body.sellers[i].from, body.sellers[i].release_date, sellerID);
+          sellerArray.push(body.sellers[i].discs, body.sellers[i].product_id, body.sellers[i].price, body.sellers[i].newfrom, body.sellers[i].usedfrom, body.sellers[i].edition, body.sellers[i].from, body.sellers[i].release_date, sellerID);
 
-          client.query(`insert into other_sellers (discs, price, newfrom, usedfrom, edition, form, release_date, id) values ($1, $2, $3, $4, $5, $6, $7, $8);`, sellerArray, (err, result) => {
-            if (err) { reject(err); }
-
-            let productsAndOtherSellersArray = [uuid.v1(), productID, sellerID, body.product_id];
-
-            client.query(`insert into products_and_other_sellers (id, id_products_foreign, id_other_sellers_foreign, product_id) values ($1, $2, $3, $4);`, productsAndOtherSellersArray, (err, results) => {
+          client.query(`insert into other_sellers (discs, product_id, price, newfrom, usedfrom, edition, form, release_date, id) values ($1, $2, $3, $4, $5, $6, $7, $8, $9);`, sellerArray, (err, result) => {
 
               if (err) { reject(err); }
-            })
+
           })
         }
       }
       for (let i = 0; i < body.forms.length; i++) {
         let formArray = [];
-        formArray.push(uuid.v1(), body.forms[i].price, body.forms[i].form, productID, body.forms[i].product_id);
-        client.query(`insert into forms (id, price, form, id_products_foreign, product_id) values ($1, $2, $3, $4, $5);`, formArray, (err, results) => {
+        formArray.push(uuid.v1(), body.forms[i].price, body.forms[i].form, body.forms[i].product_id);
+        client.query(`insert into forms (id, price, form, product_id) values ($1, $2, $3, $4);`, formArray, (err, results) => {
           if (err) { throw err; }
           resolve(201);
         })
@@ -64,10 +59,11 @@ const createRecord =  (body, resolve, reject) => {
 
       if (err) { throw err; }
       let products = results.rows[0];
-      let sellers = await client.query(`select * from other_sellers where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = $1);`, [id], async (err, results) => {
+      let sellers = await client.query(`select * from other_sellers where product_id = $1`, [id], async (err, results) => {
         if (err) { throw err; }
         // console.log('sellers', results.rows);
 
+        // console.log(results.rows);
         if (!products) { reject('error'); return}
         products['sellers'] = results.rows;
         let forms = await client.query(`select * from forms where product_id = $1;`, [id], (err, results) => {
@@ -83,7 +79,7 @@ const createRecord =  (body, resolve, reject) => {
 
 const deleteRecord = (id, resolve, reject) => {
   let deleteCount = 0;
-  client.query(`delete from products_and_other_sellers where product_id = $1`, [id], (err, results) => {
+  client.query(`delete from other_sellers where product_id = $1`, [id], (err, results) => {
     deleteCount += results.rowCount;
     client.query(`delete from forms where product_id = $1`, [id], (err, results) => {
       deleteCount += results.rowCount;
@@ -178,7 +174,7 @@ const updateRecordForms = (id, filter, resolve, reject) => {
 }
 
 let getOtherSellers = (id, resolve, reject) => {
-  client.query(`select * from other_sellers where id in (select id_other_sellers_foreign from products_and_other_sellers as ps where ps.product_id = $1);`, [id], async (err, results) => {
+  client.query(`select * from other_sellers where product_id = $1);`, [id], async (err, results) => {
     if (err) { throw err; }
     resolve(results.rows)
   });
