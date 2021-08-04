@@ -43,7 +43,6 @@ CREATE TABLE forms (
   id VARCHAR NULL DEFAULT NULL,
   price INTEGER NULL DEFAULT NULL,
   form VARCHAR NULL DEFAULT NULL,
-  id_products_foreign VARCHAR NULL DEFAULT NULL,
   product_id INTEGER NULL DEFAULT NULL,
   PRIMARY KEY (id)
 );`;
@@ -62,6 +61,7 @@ DROP TABLE IF EXISTS other_sellers cascade;
 
 CREATE TABLE other_sellers (
   id VARCHAR NULL DEFAULT NULL UNIQUE,
+  product_id INTEGER NULL DEFAULT NULL,
   discs INTEGER NULL DEFAULT NULL,
   price INTEGER NULL DEFAULT NULL,
   newfrom VARCHAR NULL DEFAULT NULL,
@@ -81,37 +81,6 @@ client.query(query, (err, res) => {
 
 });
 
-query = `DROP TABLE IF EXISTS products_and_other_sellers cascade;
 
-CREATE TABLE products_and_other_sellers (
-  id VARCHAR NULL DEFAULT NULL,
-  id_products_foreign VARCHAR NULL DEFAULT NULL,
-  id_other_sellers_foreign VARCHAR NULL DEFAULT NULL,
-  product_id INTEGER NULL DEFAULT NULL,
-  PRIMARY KEY (id)
 
-);`;
-
-client.query(query, (err, res) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    console.log('Table products_other_sellers is successfully created');
-
-});
-
-query = `
-ALTER TABLE forms ADD FOREIGN KEY (id_products_foreign) REFERENCES products (id);
-ALTER TABLE products_and_other_sellers ADD FOREIGN KEY (id_products_foreign) REFERENCES products (id);
-ALTER TABLE products_and_other_sellers ADD FOREIGN KEY (id_other_sellers_foreign) REFERENCES other_sellers (id);
-`;
-
-client.query(query, (err, res) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    console.log('Foreign Keys successfully created');
-})
 

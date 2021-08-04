@@ -25,6 +25,7 @@ const sellerGenerator = (numericProductId, uID) => {
     let random = Math.random();
     let record = {};
     record['id'] = uuid.v1();
+    record['product_id'] = numericProductId;
     record['discs'] = ~~(random * 50);
     record['price'] = ~~(random * 40) + 5;
     record['newfrom'] = ~~(random * 35) + 5;
@@ -33,12 +34,6 @@ const sellerGenerator = (numericProductId, uID) => {
     record['form'] = form[~~(random * 4)];
     record['release_date'] = faker.date.past();
     sellers.push(record);
-
-
-    let joinTableId = uuid.v4();
-    var products_other_sellers = { 'id': joinTableId, 'id_products_foreign': uID, 'id_other_sellers_foreign': record.id, 'product_id': numericProductId };
-
-    products_other_sellers_table_data.push(products_other_sellers);
 
   }
 
@@ -57,7 +52,6 @@ const formGenerator = (numericProductId, uID) => {
     obj.id = uuid.v1();
     obj.price = ~~(Math.random() * 40) + 5;
     obj.form = form[i];
-    obj.id_products_foreign = uID;
     obj.product_id = numericProductId;
     forms.push(obj);
   }
@@ -91,8 +85,8 @@ let productMaterialsLength = productMaterials.length
 let primeLength = 2;
 let companyLength = company.length;
 
-const dataGenerator = (resolve) => {
-  for (let i = 9200000; i < 10000001; i++) {
+const dataGenerator = (resolve, increment) => {
+  for (let i = increment; i < increment + 50000; i++) {
     console.log(i);
     let random = Math.random();
     let secondRandom = Math.random() - .2;
@@ -125,39 +119,35 @@ const dataGenerator = (resolve) => {
 }
 
 
-function generateData() {
+function generateData(resolve1, increment) {
   return new Promise(function(resolve, reject) {
-      dataGenerator(resolve)
+      dataGenerator(resolve, increment)
   })
   .then((data) => {
     let newLine = '\n'
 
       var productFields = ['id', 'product_id', 'product_name', 'package_name', 'list_price', 'price', 'prime', 'sold_by', 'ships_from', 'in_stock', 'inventory'];
-      var sellerFields = ['id', 'discs', 'price', 'newfrom', 'usedfrom', 'edition', 'form', 'release_date'];
-      var formFields = ['id', 'price', 'form', 'id_products_foreign', 'product_id'];
-      var products_other_sellers_table_data_fields = ['id', 'id_products_foreign', 'id_other_sellers_foreign', 'product_id'];
+      var sellerFields = ['id', 'product_id', 'discs', 'price', 'newfrom', 'usedfrom', 'edition', 'form', 'release_date'];
+      var formFields = ['id', 'price', 'form', 'product_id'];
+
 
       productFields = productFields + newLine;
       sellerFieldsData = sellerFields + newLine;
       formFieldsData = formFields + newLine;
-      products_other_sellers_table_data_fields_data = products_other_sellers_table_data_fields + newLine;
 
-      fs.writeFile('products13.csv', productFields, function (err) {
+      fs.writeFile('products1.csv', productFields, function (err) {
         if (err) throw err;
         console.log('file saved');
       });
 
-      fs.writeFile('sellers13.csv', sellerFieldsData, function (err) {
+      fs.writeFile('sellers1.csv', sellerFieldsData, function (err) {
         if (err) throw err;
       });
 
-      fs.writeFile('forms13.csv', formFieldsData, function (err) {
+      fs.writeFile('forms1.csv', formFieldsData, function (err) {
         if (err) throw err;
       });
 
-      fs.writeFile('products_other_sellers_table_data13.csv', products_other_sellers_table_data_fields_data, function(err) {
-        if (err) throw err;
-      })
       return 'data';
   })
   .then((data) => {
@@ -172,13 +162,13 @@ function generateData() {
     };
 
     var csv = json2csv(appendThis, toCsv) + newLine;
-    fs.appendFile('products13.csv', csv, function (err) {
+    fs.appendFile('products1.csv', csv, function (err) {
       if (err) throw err;
     });
 
     //appending sellers to csv
 
-    fields = ['id', 'discs', 'price', 'newfrom', 'usedfrom', 'edition', 'form', 'release_date'];
+    fields = ['id', 'product_id', 'discs', 'price', 'newfrom', 'usedfrom', 'edition', 'form', 'release_date'];
 
     var appendThisSeller = sellers;
     sellers = [];
@@ -188,13 +178,13 @@ function generateData() {
     };
 
     var sellerCsv = json2csv(appendThisSeller, sellerToCsv) + newLine;
-    fs.appendFile('sellers13.csv', sellerCsv, function (err) {
+    fs.appendFile('sellers1.csv', sellerCsv, function (err) {
       if (err) throw err;
     });
 
     //appending forms csv
 
-    fields = ['id', 'price', 'form', 'id_products_foreign', 'product_id'];
+    fields = ['id', 'price', 'form', 'product_id'];
     var appendThisForm = forms;
     forms = [];
     var formsToCSV = {
@@ -203,41 +193,126 @@ function generateData() {
     };
 
     var formToCSV = json2csv(appendThisForm, formsToCSV) + newLine;
-    fs.appendFile('forms13.csv', formToCSV, function (err) {
+    fs.appendFile('forms1.csv', formToCSV, function (err) {
       if (err) throw err;
     });
 
     //join table sellers and products appending
 
-    fields = ['id', 'id_products_foreign', 'id_other_sellers_foreign', 'product_id'];
 
-
-    var appendThisJoin = products_other_sellers_table_data;
-    products_other_sellers_table_data = [];
-    var productsOtherSellersToCSV = {
-      fields: fields,
-      header: false,
-    };
-
-    var joinToCSV = json2csv(appendThisJoin, productsOtherSellersToCSV) + newLine;
-    fs.appendFile('products_other_sellers_table_data13.csv', joinToCSV, function (err) {
-      if (err) throw err;
-    });
 
     return 'data';
   })
-  .catch((error) => {
-    console.log(error);
+  .then(() => {
+    const { Pool, Client } = require("pg");
+    const config = require('../config.js');
+
+
+    const pool = new Pool(config);
+
+
+    //do this first because of foreign key constraints
+
+
+    let sellerQuery = `
+    COPY other_sellers(id, product_id, discs, price, newfrom, usedfrom, edition, form, release_date)
+    FROM '/Users/jametevia/rpt/ProductOverview/sellers1.csv'
+    DELIMITER ','
+    CSV HEADER;`;
+
+
+    pool.query(
+      sellerQuery,
+      (err, res) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log('copied ' + res.rowCount + ' seller entries');
+        }
+        let productQuery = `
+        COPY products(id, product_id, product_name, package_name, list_price, price, prime, sold_by, ships_from, in_stock, inventory)
+        FROM '/Users/jametevia/rpt/ProductOverview/products1.csv'
+        DELIMITER ','
+        CSV HEADER;`;
+
+
+        pool.query(
+          productQuery,
+          (err, res) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log('copied ' + res.rowCount + ' product entries');
+        }
+        let formsQuery = `
+        COPY forms(id, price, form, product_id)
+        FROM '/Users/jametevia/rpt/ProductOverview/forms1.csv'
+        DELIMITER ','
+        CSV HEADER;`;
+
+
+        pool.query(
+          formsQuery,
+          (err, res) => {
+            if (err) {
+              console.log(err)
+            } else {
+              console.log('copied ' + res.rowCount + ' form entries');
+            }
+            pool.end()
+            resolve1('End');
+          }
+          );
+        }
+        );
+      }
+      );
+
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  }
+
+
+  const promiseGenerateData = (increment) => {
+    return new Promise(resolve1 => {
+    generateData(resolve1, increment);
   })
 }
 
-generateData();
+  for (let i = 1, p = Promise.resolve(); i < 500000; i+= 50000) {
+    p = p.then(() => promiseGenerateData(i))
+}
 
-  // const json2csvParser = new Parser();
-  // const productcsv = json2csvParser.parse(productInfo);
 
-  // productInfo = [];
-  // fs.writeFile('products.csv', productcsv, (err) => {
+
+
+
+      // fields = ['id', 'id_products_foreign', 'id_other_sellers_foreign', 'product_id'];
+
+
+
+  // var appendThisJoin = products_other_sellers_table_data;
+  // products_other_sellers_table_data = [];
+// var productsOtherSellersToCSV = {
+//   fields: fields,
+//   header: false,
+// };
+
+// var joinToCSV = json2csv(appendThisJoin, productsOtherSellersToCSV) + newLine;
+// fs.appendFile('products_other_sellers_table_data1.csv', joinToCSV, function (err) {
+//   if (err) throw err;
+// });
+
+
+//*********** products and other sellers data ^^
+
+// const json2csvParser = new Parser();
+// const productcsv = json2csvParser.parse(productInfo);
+
+// productInfo = [];
+// fs.writeFile('products.csv', productcsv, (err) => {
   //   if (err) throw new Error('Couldn\'t write the data to a file');
   //   console.log('The data was appended to file!');
   // });
@@ -262,11 +337,11 @@ generateData();
   // products_other_sellers_table_data = [];
 
   // } else {
-  // const json2csvParser = new Parser( { header: false });
-  // const productcsv = json2csvParser.parse(productInfo);
-  // productInfo = [];
+    // const json2csvParser = new Parser( { header: false });
+    // const productcsv = json2csvParser.parse(productInfo);
+    // productInfo = [];
 
-  // fs.appendFile('products.csv', productcsv, (err) => {
+    // fs.appendFile('products.csv', productcsv, (err) => {
   //   if (err) throw new Error('Couldn\'t write the data to a file');
   //   console.log('The data was appended to file!');
   // });
