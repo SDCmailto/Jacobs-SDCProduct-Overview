@@ -1,4 +1,4 @@
-// var newrelic = require('newrelic');
+//var newrelic = require('newrelic');
 ////
 const express = require('express');
 const shrinkRay = require('shrink-ray-current');
@@ -10,23 +10,31 @@ const jsonParser = bodyParser.json();
 const bug = String.fromCodePoint(0x1F41E);
 const cluster = require('cluster')
 const os = require('os')
+const path = require('path');
+const fs = require('fs');
+const React = require('react');
+const ReactDOMServer = require('react-dom/server');
+const App = require ('../client/src/index.jsx');
 
 var Memcached = require('memcached');
 var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, remove: true});
 
 
-if (cluster.isMaster) {
-  const cpuCount = os.cpus().length
-  for (let i = 0; i < cpuCount; i++) {
-    cluster.fork()
-  }
-} else {
+
   const app = express();
   var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
   app.use(shrinkRay());
 
-  app.use(express.static(path.join(__dirname, '/../client/dist'), {maxAge: '30d'}));
+ // app.use(express.static(path.join(__dirname, '/../client/dist'), {maxAge: '30d'}));
+  
+  app.use('^/$', (req, res, next) => {
+    fs.readFile(path.resolve('../client/dist/index.html'), 'utf-8', (err, data) => {
+	    if (err) {
+		    console.log(err);
+		    return res.status(500).send("some error happened");
+	    };
+	    return res.send(data.replace('<div id="product-overview"></div>', `<div id="product-overview">{ReactDOMServer.renderToString(<App />)}</div>`));   }};
 
   app.use( (req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -49,7 +57,7 @@ if (cluster.isMaster) {
     }
   });
 }
-  app.get('/overview/:productid', cache, (req, res) => {
+  app.get('/overview/:productid', (req, res) => {
     console.log(req.params.productid);
     return new Promise ((resolve, reject) => {
       if (!req.params.productid) {
@@ -83,6 +91,7 @@ if (cluster.isMaster) {
       db.createRecord(req.body, resolve, reject);
     })
     .then(record => {
+	    console.log(record);
       if (record === 201) {
         res.status(201).send();
       }
@@ -220,9 +229,5 @@ if (cluster.isMaster) {
   const server = app.listen(port, () => console.log(`Listening at port ${port}`));
   module.exports = server;
 
-}
 
-cluster.on('exit', (worker) => {
-  console.log('mayday! mayday! worker', worker.id, ' is no more!')
-  cluster.fork()
-})
+

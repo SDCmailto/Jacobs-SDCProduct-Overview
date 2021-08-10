@@ -57,7 +57,7 @@ const createRecord =  (body, resolve, reject) => {
 
      client.query(`select * from products where product_id = $1`, [id], async (err, results) => {
 
-      if (err) { throw err; }
+      if (err) { throw err;}
       let products = results.rows[0];
       let sellers = await client.query(`select * from other_sellers where product_id = $1`, [id], async (err, results) => {
         if (err) { throw err; }

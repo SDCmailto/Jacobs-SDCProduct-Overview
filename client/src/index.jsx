@@ -37,7 +37,7 @@ class Overview extends React.Component {
     const productid = window.location.search.slice(2);
     console.log(productid);
     $.ajax({
-      url: `http://localhost:5984/overview/` + productid,
+      url: `http://54.67.112.217:5984/overview/` + productid,
       method: 'GET',
       success: (res) => {
         console.log('res', res);
