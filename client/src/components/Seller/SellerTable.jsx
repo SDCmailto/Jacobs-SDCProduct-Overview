@@ -1,5 +1,5 @@
 import Seller from './Seller.jsx';
-
+import React from 'react';
 const SellerTable = ({sellers}) => (
   <div>
     <table className="table">

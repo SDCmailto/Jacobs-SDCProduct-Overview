@@ -4,8 +4,8 @@ const config = require('../config.js');
 const client = new Client(config);
 client.connect();
 const bug = String.fromCodePoint(0x1F41E);
-require("babel-core/register");
-require("babel-polyfill");
+require("@babel/register");
+require("@babel/polyfill");
 
 
 

@@ -3,7 +3,6 @@
 const express = require('express');
 const shrinkRay = require('shrink-ray-current');
 const db = require('../database/index.js');
-const path = require('path');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
@@ -14,11 +13,13 @@ const path = require('path');
 const fs = require('fs');
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
-const App = require ('../client/src/index.jsx');
-
+const  Overview = require('../client/src/index.jsx');
+const renderToString = require('react-dom/server').renderToString;
 var Memcached = require('memcached');
 var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, remove: true});
-
+//require('babel-register')({
+   // presets: ['es2015', 'react']
+//});
 
 
   const app = express();
@@ -26,19 +27,18 @@ var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, rem
 
   app.use(shrinkRay());
 
- // app.use(express.static(path.join(__dirname, '/../client/dist'), {maxAge: '30d'}));
+  app.use(express.static(path.join(__dirname, '/../client/dist'), {maxAge: '30d'}));
   
-  app.use('^/$', (req, res, next) => {
-    fs.readFile(path.resolve('../client/dist/index.html'), 'utf-8', (err, data) => {
-	    if (err) {
-		    console.log(err);
-		    return res.status(500).send("some error happened");
-	    };
-	    return res.send(data.replace('<div id="product-overview"></div>', `<div id="product-overview">{ReactDOMServer.renderToString(<App />)}</div>`));   }};
+ // app.use('/', (req, res, next) => {
+	     // var html = ReactDOMServer.renderToString(
+       // React.createElement(Overview)
+   // );
+   // res.send(html);
+   // });
 
   app.use( (req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+   res.setHeader("Access-Control-Allow-Origin", "*");
+   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     next();
   });
 
@@ -84,6 +84,7 @@ var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, rem
 
 
   app.post('/overview', jsonParser ,(req, res) => {
+	console.log(req.body);
     return new Promise ((resolve, reject) => {
       if (JSON.stringify(req.body) === '{}') {
         throw 'error';
@@ -93,6 +94,8 @@ var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, rem
     .then(record => {
 	    console.log(record);
       if (record === 201) {
+	  // res.setHeader("Access-Control-Allow-Origin", "*");
+   // res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");      
         res.status(201).send();
       }
     })

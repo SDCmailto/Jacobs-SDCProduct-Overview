@@ -1,6 +1,6 @@
 import SellerTable from '../Seller/SellerTable.jsx';
 import FormWidget from '../Form/FormWidget.jsx';
-
+import React from 'react';
 class OverviewWidget extends React.Component {
   constructor(props) {
     super(props);

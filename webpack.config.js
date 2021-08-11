@@ -29,7 +29,9 @@ module.exports = {
     ]
   },
   plugins: [
-    new dotenv(),
+    new dotenv({
+  path: path.resolve(__dirname, './.env')
+}),
     new CompressionPlugin()
   ]
 }

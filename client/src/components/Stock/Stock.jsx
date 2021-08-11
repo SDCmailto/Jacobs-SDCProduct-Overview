@@ -1,3 +1,5 @@
+import React from 'react'; 
+
 function Stock({in_stock}) {
   if (in_stock) {
     return <span className="instock"><b>In Stock.</b></span>

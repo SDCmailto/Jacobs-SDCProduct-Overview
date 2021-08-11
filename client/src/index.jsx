@@ -1,7 +1,6 @@
 const $ = require( "jquery" );
-// const React = require('react');
-// const ReactDOM = require('react-dom');
-
+ const React = require('react');
+ const ReactDOM = require('react-dom');
 import OverviewWidget from './components/Overview/OverviewWidget.jsx';
 import CartWidget from './components/Cart/CartWidget.jsx';
 
@@ -126,5 +125,7 @@ class Overview extends React.Component {
     )
   }
 }
-
-ReactDOM.render(<Overview />, document.getElementById("product-overview"));
+export default Overview;
+if (typeof window !== 'undefined') {
+ReactDOM.hydrate(<Overview />, document.getElementById("product-overview"));
+}	
