@@ -29,7 +29,7 @@ class Overview extends React.Component {
       reviewcount: null
     }
   }
-
+//
   componentDidMount() {
 
     // const productid = new URL(window.location).pathname.slice(4, );
