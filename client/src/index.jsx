@@ -60,7 +60,7 @@ class Overview extends React.Component {
     })
 
     $.ajax({
-      url: `${process.env.INFORMATION_IP}` + productid,
+      url: "http://18.118.36.172:3000/Information" + productid,
       method: 'GET',
       success: (res) => {
         this.setState({
