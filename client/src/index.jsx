@@ -36,7 +36,7 @@ class Overview extends React.Component {
     const productid = window.location.pathname;
     console.log(productid);
     $.ajax({
-      url: 'http://3.101.20.29:5984/overview' + productid,
+      url: 'http://54.151.82.224/overview' + productid,
       method: 'GET',
       success: (res) => {
         console.log('res', res);

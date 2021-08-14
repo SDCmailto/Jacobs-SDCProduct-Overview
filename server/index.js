@@ -57,8 +57,8 @@ var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, rem
     }
   });
 }
-  app.get('/overview/:productid', (req, res) => {
-    console.log(req.params.productid);
+  app.get('/overview/:productid', cache, (req, res) => {
+	  console.log(req.params.productid);
     return new Promise ((resolve, reject) => {
       if (!req.params.productid) {
         throw id;
@@ -70,10 +70,10 @@ var memcached = new Memcached('localhost:11211', {retries: 10, retry: 10000, rem
         throw new Error("Error!");
       }
       let stringifiedRecord = JSON.stringify(record);
-
-      // memcached.set(req.url, stringifiedRecord, 36000, function (err, data) {
-      //   if (err) {throw err;}
-      // })
+      if (req.params.productid < 9800050) {
+       memcached.set(req.url, stringifiedRecord, 36000, function (err, data) {
+         if (err) {throw err;}
+       })}
       res.status(200).json(record);
     })
     .catch(error => {
