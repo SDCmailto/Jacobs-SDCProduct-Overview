@@ -1,8 +1,8 @@
-# Project Name
-#Project Name
-> Amazon Item Page Clone
+# Application Mailto
 
-## Related Projects
+> Item Page 
+
+## Related Repos
 
   - https://github.com/Zheng-Yi-Sao/ProductGallery
   - https://github.com/Zheng-Yi-Sao/ProductInformation
