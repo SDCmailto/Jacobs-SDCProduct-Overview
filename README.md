@@ -16,7 +16,7 @@
 
 ## Usage
 
-* API Routes for http://localhost:3002
+* API Routes 
 
 * GET /overview/productID
 
